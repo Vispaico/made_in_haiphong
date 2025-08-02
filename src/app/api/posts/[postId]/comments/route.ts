@@ -1,7 +1,7 @@
 // src/app/api/posts/[postId]/comments/route.ts
 
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth'; // <-- THE CORRECTED IMPORT PATH
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
