@@ -1,7 +1,7 @@
 // src/app/(main)/community/page.tsx
 
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
