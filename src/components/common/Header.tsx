@@ -1,11 +1,14 @@
+// src/components/common/Header.tsx
 'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ShipWheel, Search, X, Menu } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { ShipWheel, Search, X, Menu, UserCircle } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { data: session, status } = useSession(); // Get session data
 
   const navLinks = [
     { href: '/explore', label: 'Explore' },
@@ -13,6 +16,11 @@ export default function Header() {
     { href: '/stay', label: 'Stay' },
     { href: '/community', label: 'Community Feed' },
   ];
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' }); // Log out and redirect to homepage
+    setIsMenuOpen(false);
+  }
 
   return (
     <>
@@ -32,13 +40,28 @@ export default function Header() {
             ))}
           </nav>
 
+          {/* --- DYNAMIC DESKTOP ACTIONS --- */}
           <div className="hidden items-center space-x-2 md:flex">
-            <button className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground" aria-label="Search">
-              <Search className="h-5 w-5" />
-            </button>
-            <Link href="/login" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90">
-              Log In
-            </Link>
+            {status === 'authenticated' ? (
+              <>
+                <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary">
+                  <UserCircle className="h-5 w-5" />
+                  <span>{session.user?.name}</span>
+                </Link>
+                <button onClick={handleLogout} className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80">
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground" aria-label="Search">
+                  <Search className="h-5 w-5" />
+                </button>
+                <Link href="/login" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90">
+                  Log In
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center md:hidden">
@@ -49,6 +72,7 @@ export default function Header() {
         </div>
       </header>
 
+      {/* --- DYNAMIC MOBILE MENU --- */}
       {isMenuOpen && (
         <div className="absolute top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
           <nav className="flex flex-col space-y-1 p-4">
@@ -58,9 +82,20 @@ export default function Header() {
               </Link>
             ))}
             <div className="!mt-4 flex flex-col pt-2">
-               <Link href="/login" className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white">
-                Log In
-              </Link>
+              {status === 'authenticated' ? (
+                <>
+                  <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
+                    My Dashboard
+                  </Link>
+                  <button onClick={handleLogout} className="mt-1 rounded-md bg-accent px-3 py-2 text-left text-base font-medium text-white">
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white">
+                  Log In
+                </Link>
+              )}
             </div>
           </nav>
         </div>

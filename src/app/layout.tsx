@@ -1,10 +1,7 @@
 // src/app/layout.tsx
 
 import './globals.css';
-import { Inter } from 'next/font/google'; // Example, adjust if you use a different font loader
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-// You might add Poppins here too if you load it via next/font
+import Providers from '@/components/providers'; // Import our new component
 
 export const metadata = {
   title: 'Made in Haiphong',
@@ -17,9 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // It's good practice to apply the font variable here
-    <html lang="en" className={inter.variable}>
-      <body>{children}</body>
+    <html lang="en">
+      <body>
+        {/* THE FIX IS HERE: The closing tag is now correct. */}
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

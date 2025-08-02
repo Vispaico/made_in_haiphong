@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { 
   LayoutDashboard, User, MessageSquare, ShoppingBag, 
-  Heart, Star, Settings, LogOut, ShipWheel
+  Heart, Star, Settings, ShipWheel 
 } from 'lucide-react';
+import LogoutButton from '@/components/dashboard/LogoutButton'; // Import the new client component
 
+// The full array of navigation links for the dashboard sidebar
 const dashboardNavLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/profile', label: 'My Profile', icon: User },
@@ -28,7 +30,7 @@ export default function DashboardLayout({
         <div className="mb-8">
           <Link href="/" className="flex items-center gap-2 text-foreground">
             <ShipWheel className="h-6 w-6 text-primary" />
-            <span className="font-heading text-lg font-bold">Haiphong</span>
+            <span className="font-heading text-lg font-bold">Made in Haiphong</span>
           </Link>
         </div>
         <nav className="flex flex-grow flex-col space-y-2">
@@ -44,18 +46,15 @@ export default function DashboardLayout({
           ))}
         </nav>
         <div>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground">
-            <LogOut className="h-5 w-5" />
-            <span>Log Out</span>
-          </button>
+          {/* The old button is replaced with our new, functional client component */}
+          <LogoutButton />
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-grow p-4 md:p-8">
-        {/* We would have a mobile header here for non-desktop screens */}
+      <main className="flex-grow p-4 md:p-8">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

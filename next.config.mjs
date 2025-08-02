@@ -1,8 +1,19 @@
+// next.config.mjs
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Your Next.js configuration options go here.
-  // For a new project, this is often empty or has reactStrictMode.
   reactStrictMode: true,
+  // ADD THIS SECTION:
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
