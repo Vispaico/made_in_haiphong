@@ -4,14 +4,13 @@ import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import CommentForm from '@/components/community/CommentForm';
-import LikeButton from '@/components/community/LikeButton'; // <-- Import LikeButton
+import LikeButton from '@/components/community/LikeButton';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export default async function PostDetailPage({ params }: { params: { post_id: string } }) {
   const session = await getServerSession(authOptions);
 
-  // 1. Fetch the post with more detailed information
   const post = await prisma.post.findUnique({
     where: { id: params.post_id },
     include: {
@@ -22,11 +21,8 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
           author: { select: { name: true, image: true } },
         },
       },
-      // Include likes in the query, just like on the main feed page
       likes: {
-        where: {
-          userId: session?.user?.id,
-        },
+        where: { userId: session?.user?.id },
         select: { userId: true },
       },
       _count: {
@@ -42,7 +38,6 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
   return (
     <div className="bg-background py-12">
       <div className="container mx-auto max-w-2xl px-4">
-        {/* Main Post */}
         <div className="rounded-xl border border-secondary bg-background p-6">
           <div className="flex items-center gap-3">
             <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
@@ -55,7 +50,6 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
             </div>
           )}
           <div className="mt-4 flex items-center gap-4 border-t border-secondary pt-4">
-            {/* 2. Replace the old static button with the new dynamic one */}
             <LikeButton
               postId={post.id}
               initialLikes={post._count.likes}
@@ -63,13 +57,9 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
             />
           </div>
         </div>
-
-        {/* Comments Section */}
         <div className="mt-10">
           <h2 className="font-heading text-2xl font-bold text-foreground">Comments ({post.comments.length})</h2>
-          
           <CommentForm postId={post.id} />
-          
           <div className="mt-6 space-y-6">
             {post.comments.map((comment) => (
               <div key={comment.id} className="flex items-start gap-3">
