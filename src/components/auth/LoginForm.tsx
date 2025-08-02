@@ -51,7 +51,7 @@ export default function LoginForm() {
       <div>
         <h2 className="font-heading text-2xl font-bold text-foreground">Log In</h2>
         <p className="mt-2 text-sm text-foreground/70">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-semibold text-primary hover:underline">
             Sign up here
           </Link>
