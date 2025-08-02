@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
+/* 
+  This is where we define our app's core design tokens (variables).
+  We've translated your design plan into CSS variables.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors inspired by Haiphong */
+  --color-background: #F8F7F4; /* Sandy Beige */
+  --color-foreground: #18202F; /* Dark Nautical Blue for text */
+  --color-primary: #0A3D62; /* Deep Nautical Blue */
+  --color-secondary: #E6E6E6; /* Light Gray */
+  --color-accent: #FF6B6B; /* Vibrant Coral/Red */
+  
+  /* Fonts from your design plan */
+  --font-sans: "Inter", sans-serif; /* Using Inter as a great modern choice */
+  --font-heading: "Poppins", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark Mode Color Definitions */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-background: #0A0A0A; /* Near Black */
+    --color-foreground: #EDEDED; /* Light Gray for text */
+    --color-primary: #5294E2; /* Lighter Blue for dark mode */
+    --color-secondary: #1F1F1F; /* Dark Gray */
+    --color-accent: #FF7B7B; /* Slightly brighter coral for dark mode */
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* This tells Tailwind to use our variables */
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
 }
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* We also need to import the fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500;600&display=swap');
