@@ -8,7 +8,7 @@ import { ShipWheel, Search, X, Menu, UserCircle } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { data: session, status } = useSession(); // Get session data
+  const { data: session, status } = useSession();
 
   const navLinks = [
     { href: '/explore', label: 'Explore' },
@@ -18,7 +18,7 @@ export default function Header() {
   ];
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/' }); // Log out and redirect to homepage
+    signOut({ callbackUrl: '/' });
     setIsMenuOpen(false);
   }
 
@@ -40,7 +40,6 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* --- DYNAMIC DESKTOP ACTIONS --- */}
           <div className="hidden items-center space-x-2 md:flex">
             {status === 'authenticated' ? (
               <>
@@ -72,9 +71,10 @@ export default function Header() {
         </div>
       </header>
 
-      {/* --- DYNAMIC MOBILE MENU --- */}
+      {/* --- Mobile Menu Dropdown --- */}
       {isMenuOpen && (
-        <div className="absolute top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
+        // THE FIX IS HERE: Changed 'absolute' to 'fixed'
+        <div className="fixed top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
           <nav className="flex flex-col space-y-1 p-4">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground" onClick={() => setIsMenuOpen(false)}>
