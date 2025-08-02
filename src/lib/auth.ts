@@ -1,6 +1,7 @@
 // src/lib/auth.ts
 
-import NextAuth, { type NextAuthOptions } from 'next-auth';
+// ESLINT FIX: Removed the unused 'NextAuth' default import.
+import { type NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import GoogleProvider from 'next-auth/providers/google';
@@ -11,7 +12,6 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error('Missing Google OAuth environment variables');
 }
 
-// The authOptions object now lives here, in a separate file.
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -49,6 +49,23 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'database',
   },
+  
+  // PRODUCTION LOGIN FIX: Explicitly define the production cookie policy.
+  // This removes any ambiguity for the browser in a production environment.
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+        // Set the domain to allow the cookie to be used across subdomains (like www)
+        domain: '.made-in-haiphong.com',
+      },
+    },
+  },
+
   callbacks: {
     session({ session, user }) {
       if (session.user) {
@@ -62,4 +79,5 @@ export const authOptions: NextAuthOptions = {
     error: '/login', 
   },
   debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET,
 };
