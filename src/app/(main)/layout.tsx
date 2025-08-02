@@ -1,4 +1,7 @@
-import Header from '@/components/common/Header';
+// src/app/(main)/layout.tsx
+
+// THE FIX: We now import the new ServerHeader.
+import ServerHeader from '@/components/common/ServerHeader';
 import Footer from '@/components/common/Footer';
 
 export default function MainLayout({
@@ -8,7 +11,8 @@ export default function MainLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      {/* And we use it here. */}
+      <ServerHeader />
       <main className="flex-grow">
         {children}
       </main>
