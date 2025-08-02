@@ -3,22 +3,12 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-// We get the Session type for our prop definition
-import { Session } from 'next-auth';
-import { signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { ShipWheel, Search, X, Menu, UserCircle } from 'lucide-react';
 
-// THE FIX: Define the props for the component, including the session
-interface HeaderProps {
-  session: Session | null;
-}
-
-// THE FIX: The component now receives the session directly as a prop.
-export default function Header({ session }: HeaderProps) {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-  // We determine the user's status directly from the prop, not a hook.
-  const isAuthenticated = !!session;
+  const { data: session, status } = useSession();
 
   const navLinks = [
     { href: '/explore', label: 'Explore' },
@@ -50,9 +40,8 @@ export default function Header({ session }: HeaderProps) {
             ))}
           </nav>
 
-          {/* --- DYNAMIC DESKTOP ACTIONS --- */}
           <div className="hidden items-center space-x-2 md:flex">
-            {isAuthenticated ? (
+            {status === 'authenticated' ? (
               <>
                 <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary">
                   <UserCircle className="h-5 w-5" />
@@ -82,9 +71,10 @@ export default function Header({ session }: HeaderProps) {
         </div>
       </header>
 
-      {/* --- DYNAMIC MOBILE MENU --- */}
+      {/* --- Mobile Menu Dropdown --- */}
       {isMenuOpen && (
-        <div className="absolute top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
+        // THE FIX IS HERE: Changed 'absolute' to 'fixed'
+        <div className="fixed top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
           <nav className="flex flex-col space-y-1 p-4">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground" onClick={() => setIsMenuOpen(false)}>
@@ -92,7 +82,7 @@ export default function Header({ session }: HeaderProps) {
               </Link>
             ))}
             <div className="!mt-4 flex flex-col pt-2">
-              {isAuthenticated ? (
+              {status === 'authenticated' ? (
                 <>
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
                     My Dashboard
