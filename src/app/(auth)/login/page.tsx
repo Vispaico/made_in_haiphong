@@ -2,9 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // A simple Google icon component
 const GoogleIcon = () => (
@@ -15,22 +15,42 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status === 'success') {
+      setSuccess('Account created successfully! Please log in.');
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
+    setIsLoading(true);
+
     try {
-      const result = await signIn('credentials', { redirect: false, email, password });
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
       if (result?.error) {
         setError('Invalid email or password.');
+        setIsLoading(false);
         return;
       }
       router.replace('/dashboard');
     } catch {
       setError('An unexpected error occurred.');
+      setIsLoading(false);
     }
   };
 
@@ -43,14 +63,18 @@ export default function LoginPage() {
       <div>
         <h2 className="font-heading text-2xl font-bold text-foreground">Log In</h2>
         <p className="mt-2 text-sm text-foreground/70">
-          New to the platform?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-semibold text-primary hover:underline">
             Sign up here
           </Link>
         </p>
       </div>
       
-      <div className="mt-8">
+      {/* Display success or error messages */}
+      {success && <p className="mt-6 rounded-md bg-green-500/10 p-3 text-sm text-green-700">{success}</p>}
+      {error && <p className="mt-6 rounded-md bg-red-500/10 p-3 text-sm text-red-500">{error}</p>}
+      
+      <div className="mt-6">
         <button onClick={handleGoogleSignIn} className="flex w-full items-center justify-center gap-3 rounded-lg border border-secondary bg-background py-2.5 font-semibold text-foreground transition-colors hover:bg-secondary">
           <GoogleIcon />
           <span>Log in with Google</span>
@@ -65,7 +89,7 @@ export default function LoginPage() {
 
       <form onSubmit={handleLogin} className="space-y-6">
         <div className="space-y-2">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email" className="text-sm font-medium">Email Address</label>
             <input id="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" required className="w-full rounded-md border border-secondary bg-background/50 p-2.5 text-foreground focus:ring-2 focus:ring-primary"/>
         </div>
         <div className="space-y-2">
@@ -73,11 +97,13 @@ export default function LoginPage() {
             <input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required className="w-full rounded-md border border-secondary bg-background/50 p-2.5 text-foreground focus:ring-2 focus:ring-primary"/>
         </div>
         
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        
         <div>
-          <button type="submit" className="w-full rounded-lg bg-accent py-2.5 font-semibold text-white transition-colors hover:bg-accent/90">
-            Continue with Email
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full rounded-lg bg-accent py-2.5 font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:bg-accent/50"
+          >
+            {isLoading ? 'Logging In...' : 'Log In with Email'}
           </button>
         </div>
       </form>
