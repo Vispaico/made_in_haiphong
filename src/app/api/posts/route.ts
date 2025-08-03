@@ -5,27 +5,14 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-// This is the new function for GET requests.
+// Your GET handler remains unchanged.
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
       include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
+        author: { select: { id: true, name: true, image: true } },
+        _count: { select: { likes: true, comments: true } },
       },
     });
     return NextResponse.json(posts);
@@ -35,7 +22,7 @@ export async function GET() {
   }
 }
 
-// This is your existing function for POST requests. It remains unchanged.
+// Your POST handler is updated.
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
@@ -43,7 +30,8 @@ export async function POST(req: Request) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const { content } = await req.json();
+  // THE FIX: We now expect an optional 'imageUrl' in the request body.
+  const { content, imageUrl } = await req.json();
 
   if (!content || typeof content !== 'string' || content.length < 1) {
     return new NextResponse('Bad Request: Invalid content', { status: 400 });
@@ -53,6 +41,9 @@ export async function POST(req: Request) {
     const newPost = await prisma.post.create({
       data: {
         content: content,
+        // THE FIX: Add the imageUrl to the data being saved.
+        // If imageUrl is null or undefined, Prisma will simply ignore it.
+        imageUrl: imageUrl,
         authorId: session.user.id,
       },
     });
