@@ -13,7 +13,9 @@ interface LikeButtonProps {
 }
 
 export default function LikeButton({ postId, initialLikes, isInitiallyLiked }: LikeButtonProps) {
-  const { data: session, status } = useSession();
+  // THE FIX IS HERE: We are no longer creating the unused 'session' variable.
+  // We only destructure 'status', which is the only property we actually use.
+  const { status } = useSession();
   const router = useRouter();
   
   const [likeCount, setLikeCount] = useState(initialLikes);
@@ -30,8 +32,6 @@ export default function LikeButton({ postId, initialLikes, isInitiallyLiked }: L
     setLikeCount(likeCount + (!isLiked ? 1 : -1));
 
     await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-    // We don't need to do anything with the response, 
-    // but in a real app you might want to handle errors.
   };
 
   return (

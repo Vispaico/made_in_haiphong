@@ -10,13 +10,19 @@ interface CommentFormProps {
 }
 
 export default function CommentForm({ postId }: CommentFormProps) {
-  const { data: session, status } = useSession();
+  // THE FIX IS HERE: We only destructure 'status' as 'session' is never used.
+  const { status } = useSession();
   const [text, setText] = useState('');
   const router = useRouter();
 
   // If the user is not logged in, don't show the form.
-  if (status !== 'authenticated') {
+  if (status === 'unauthenticated') {
     return <p className="mt-4 text-foreground/70">Please <a href="/login" className="underline text-primary">log in</a> to leave a comment.</p>;
+  }
+
+  // Show a loading state while the session is being determined
+  if (status === 'loading') {
+    return <div className="mt-4 h-24 w-full animate-pulse rounded-lg bg-secondary"></div>;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
