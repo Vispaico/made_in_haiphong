@@ -3,12 +3,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ImageUploader from '@/components/common/ImageUploader'; // Import the uploader
+import ImageUploader from '@/components/common/ImageUploader';
 
 export default function CreatePostForm() {
   const [content, setContent] = useState('');
-  // THE FIX: Add state to hold the URL of the uploaded image
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  // THE FIX: State now holds an array of URLs.
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -23,14 +23,14 @@ export default function CreatePostForm() {
     const response = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // THE FIX: Send both content and the imageUrl to the API
-      body: JSON.stringify({ content, imageUrl }),
+      // THE FIX: Send the array of URLs to the API.
+      body: JSON.stringify({ content, imageUrls }),
     });
 
     if (response.ok) {
       setContent('');
-      setImageUrl(null); // Clear the image URL
-      router.refresh(); // Refresh the page to show the new post
+      setImageUrls([]); // Clear the image URLs array
+      router.refresh();
     } else {
       setError('Failed to create post. Please try again.');
     }
@@ -48,11 +48,13 @@ export default function CreatePostForm() {
         required
       />
       
-      {/* THE FIX: Add the ImageUploader component to the form */}
       <div className="mt-4">
+        {/* THE FIX: The props now handle arrays of URLs. */}
         <ImageUploader 
-          onUploadComplete={(url) => setImageUrl(url)}
-          onUploadRemove={() => setImageUrl(null)}
+          onUploadComplete={(urls) => setImageUrls(urls)}
+          onUploadRemove={(removedUrl) => {
+            setImageUrls(currentUrls => currentUrls.filter(url => url !== removedUrl));
+          }}
         />
       </div>
 

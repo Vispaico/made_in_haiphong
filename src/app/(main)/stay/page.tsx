@@ -1,36 +1,19 @@
 // src/app/(main)/stay/page.tsx
 
 import Card from '@/components/ui/Card';
+import prisma from '@/lib/prisma';
+import Link from 'next/link';
 
-// Sample data for accommodation listings
-const stayListings = [
-  {
-    href: '/stay/seaside-villa-lan-ha',
-    title: 'Seaside Villa in Lan Ha',
-    description: 'A beautiful villa with direct beach access. Sleeps 8. From $250/night.',
-    imageUrl: '/images/stay-1.jpg', 
-  },
-  {
-    href: '/stay/city-center-apartment',
-    title: 'Modern City Center Apartment',
-    description: 'A stylish 2-bedroom apartment perfect for exploring the city. From $70/night.',
-    imageUrl: '/images/stay-2.jpg', // You will need to add a representative image
-  },
-  {
-    href: '/stay/cat-ba-bungalow',
-    title: 'Rustic Bungalow on Cat Ba',
-    description: 'Escape to nature in this charming bungalow. From $55/night.',
-    imageUrl: '/images/stay-3.jpg', // You will need to add a representative image
-  },
-  {
-    href: '/stay/boutique-hotel-vieux',
-    title: 'Boutique Hotel "Vieux Port"',
-    description: 'Experience comfort and elegance in the heart of the old port area. From $120/night.',
-    imageUrl: '/images/stay-4.jpg', // You will need to add a representative image
-  },
-];
+export default async function StayPage() {
+  const accommodations = await prisma.listing.findMany({
+    where: {
+      category: 'accommodation',
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
-export default function StayPage() {
   return (
     <div className="bg-background py-16">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -41,10 +24,31 @@ export default function StayPage() {
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {stayListings.map((listing) => (
-            <Card key={listing.href} {...listing} />
-          ))}
+        <div className="mt-16">
+          {accommodations.length > 0 ? (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {accommodations.map((listing) => (
+                <Card
+                  key={listing.id}
+                  href={`/stay/${listing.id}`}
+                  title={listing.title}
+                  description={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)} / night`}
+                  // THE FIX: Changed 'imageUrl' to 'imageUrls' to match the Card's props.
+                  imageUrls={listing.imageUrls}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
+              <h2 className="font-heading text-2xl font-bold text-foreground">No Accommodations Available Yet</h2>
+              <p className="mt-2 text-foreground/70">
+                Check back soon for places to stay in Haiphong.
+              </p>
+              <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
+                Are you a host? List your place now!
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

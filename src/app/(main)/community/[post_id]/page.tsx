@@ -38,17 +38,30 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
   return (
     <div className="bg-background py-12">
       <div className="container mx-auto max-w-2xl px-4">
+        {/* Main Post Card */}
         <div className="rounded-xl border border-secondary bg-background p-6">
           <div className="flex items-center gap-3">
             <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
             <span className="font-semibold text-foreground">{post.author.name}</span>
           </div>
           <p className="mt-4 whitespace-pre-wrap text-lg text-foreground/90">{post.content}</p>
-          {post.imageUrl && (
-            <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-lg">
-              <Image src={post.imageUrl} alt="Community post image" fill className="object-cover" />
+
+          {/* THE FIX IS HERE: We now check the `imageUrls` array and map over it. */}
+          {post.imageUrls && post.imageUrls.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {post.imageUrls.map((url, index) => (
+                <div key={index} className="relative aspect-square overflow-hidden rounded-lg">
+                  <Image 
+                    src={url} 
+                    alt={`Post image ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </div>
           )}
+
           <div className="mt-4 flex items-center gap-4 border-t border-secondary pt-4">
             <LikeButton
               postId={post.id}
@@ -57,6 +70,8 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
             />
           </div>
         </div>
+
+        {/* Comments Section */}
         <div className="mt-10">
           <h2 className="font-heading text-2xl font-bold text-foreground">Comments ({post.comments.length})</h2>
           <CommentForm postId={post.id} />

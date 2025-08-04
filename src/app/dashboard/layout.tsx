@@ -1,13 +1,13 @@
-// src/app/(dashboard)/layout.tsx
+// src/app/dashboard/layout.tsx
 
 import Link from 'next/link';
 import { 
   LayoutDashboard, User, MessageSquare, ShoppingBag, 
-  Heart, Star, Settings, ShipWheel 
+  Heart, Star, Settings, ShipWheel, PlusCircle
 } from 'lucide-react';
-import LogoutButton from '@/components/dashboard/LogoutButton'; // Import the new client component
+import LogoutButton from '@/components/dashboard/LogoutButton';
+import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Import the new header
 
-// The full array of navigation links for the dashboard sidebar
 const dashboardNavLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/profile', label: 'My Profile', icon: User },
@@ -25,7 +25,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-secondary">
-      {/* Sidebar Navigation */}
+      {/* --- Desktop Sidebar --- */}
+      {/* This remains unchanged, but is now explicitly for desktop */}
       <aside className="hidden w-64 flex-col border-r border-secondary bg-background p-4 md:flex">
         <div className="mb-8">
           <Link href="/" className="flex items-center gap-2 text-foreground">
@@ -33,6 +34,17 @@ export default function DashboardLayout({
             <span className="font-heading text-lg font-bold">Made in Haiphong</span>
           </Link>
         </div>
+        
+        <div className="mb-6">
+          <Link 
+            href="/dashboard/listings/new"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-bold text-white shadow-md transition-transform hover:scale-105"
+          >
+            <PlusCircle className="h-5 w-5" />
+            <span>Create Listing</span>
+          </Link>
+        </div>
+
         <nav className="flex flex-grow flex-col space-y-2">
           {dashboardNavLinks.map((link) => (
             <Link 
@@ -46,15 +58,21 @@ export default function DashboardLayout({
           ))}
         </nav>
         <div>
-          {/* The old button is replaced with our new, functional client component */}
           <LogoutButton />
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-grow p-4 md:p-8">
-        {children}
-      </main>
+      {/* --- Main Content Area --- */}
+      {/* This is now wrapped in a flex-col div to accommodate the mobile header */}
+      <div className="flex flex-1 flex-col">
+        {/* THE FIX IS HERE: Add the mobile-only DashboardHeader */}
+        <DashboardHeader />
+        
+        {/* The main content now correctly fills the remaining space */}
+        <main className="flex-grow p-4 md:p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

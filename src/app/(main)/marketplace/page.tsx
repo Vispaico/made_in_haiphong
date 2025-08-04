@@ -2,25 +2,25 @@
 
 import Card from '@/components/ui/Card';
 
-// Data for the main marketplace categories
+// The data is confirmed to be correct, using 'imageUrls' as an array.
 const marketplaceCategories = [
   {
     href: '/marketplace/rentals',
     title: 'Rentals',
     description: 'Rent motorbikes, cars, cameras, and more from locals.',
-    imageUrl: '/images/market-rentals.jpg', // You will need to add a representative image
+    imageUrls: ['/images/market-rentals.jpg'],
   },
   {
     href: '/marketplace/for-sale',
     title: 'For Sale',
     description: 'Buy second-hand goods and new products from local vendors.',
-    imageUrl: '/images/market-for-sale.jpg', // You will need to add a representative image
+    imageUrls: ['/images/market-for-sale.jpg'],
   },
   {
     href: '/marketplace/services',
     title: 'Services',
     description: 'Hire local guides, chauffeurs, photographers, and other professionals.',
-    imageUrl: '/images/market-services.jpg', // You will need to add a representative image
+    imageUrls: ['/images/market-services.jpg'],
   },
 ];
 
@@ -37,7 +37,15 @@ export default function MarketplacePage() {
 
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {marketplaceCategories.map((category) => (
-            <Card key={category.href} {...category} />
+            // THE FIX IS HERE: We are now passing each prop explicitly
+            // instead of using the spread operator. This is safer.
+            <Card 
+              key={category.href}
+              href={category.href}
+              title={category.title}
+              description={category.description}
+              imageUrls={category.imageUrls}
+            />
           ))}
         </div>
       </div>

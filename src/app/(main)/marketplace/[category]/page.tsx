@@ -1,47 +1,36 @@
 // src/app/(main)/marketplace/[category]/page.tsx
 
 import Card from '@/components/ui/Card';
+import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
-// --- Sample Data for Marketplace Categories ---
-// In a real app, this would come from a database query based on the category.
-const marketplaceData = {
-  'rentals': {
-    name: 'Rentals',
-    description: 'Find the perfect item to rent for your trip or project.',
-    items: [
-      { href: "/marketplace/rentals/honda-wave-alpha", title: "Honda Wave Alpha", description: "Perfect for city cruising. 150,000 VND/day.", imageUrl: "/images/rent-1.jpg" },
-      { href: "/marketplace/rentals/canon-eos-r", title: "Canon EOS R Camera", description: "Capture your trip in stunning detail. 500,000 VND/day.", imageUrl: "/images/rent-2.jpg" }, // Add image
-      { href: "/marketplace/rentals/inflatable-sup", title: "Inflatable Paddleboard", description: "Explore the bay at your own pace. 300,000 VND/day.", imageUrl: "/images/rent-3.jpg" }, // Add image
-    ]
-  },
-  'for-sale': {
-    name: 'For Sale',
-    description: 'Browse new and used goods from sellers across Haiphong.',
-    items: [] // We can add sample items here later
-  },
-  'services': {
-    name: 'Services',
-    description: 'Hire talented locals for tours, transport, and more.',
-    items: [] // We can add sample items here later
-  },
+const categoryInfo: { [key: string]: { name: string; description: string } } = {
+  'rentals': { name: 'Rentals', description: 'Find the perfect item to rent for your trip or project.' },
+  'for-sale': { name: 'For Sale', description: 'Browse new and used goods from sellers across Haiphong.' },
+  'services': { name: 'Services', description: 'Hire talented locals for tours, transport, and more.' },
+  'accommodation': { name: 'Accommodation', description: 'Find the perfect place to stay during your trip.' },
 };
-// --- End Sample Data ---
-
 
 export default async function MarketplaceCategoryPage({ params }: { params: { category: string } }) {
-  const categoryKey = params.category as keyof typeof marketplaceData;
-  const category = marketplaceData[categoryKey];
+  const category = categoryInfo[params.category];
 
-  // If the URL doesn't match a valid category, show a 404 page
   if (!category) {
     notFound();
   }
 
+  const listings = await prisma.listing.findMany({
+    where: {
+      category: params.category,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
   return (
     <div className="bg-background py-16">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
         <div className="text-left">
           <p className="font-semibold text-primary">Marketplace</p>
           <h1 className="font-heading text-4xl font-bold text-foreground">{category.name}</h1>
@@ -50,21 +39,29 @@ export default async function MarketplaceCategoryPage({ params }: { params: { ca
           </p>
         </div>
 
-        {/* Listings Grid */}
         <div className="mt-16">
-          {category.items.length > 0 ? (
+          {listings.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {category.items.map((item) => (
-                <Card key={item.href} {...item} />
+              {listings.map((listing) => (
+                <Card
+                  key={listing.id}
+                  href={`/marketplace/${listing.category}/${listing.id}`}
+                  title={listing.title}
+                  description={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}`}
+                  // THE FIX IS HERE: Changed 'imageUrl' to 'imageUrls' to match the Card's props.
+                  imageUrls={listing.imageUrls}
+                />
               ))}
             </div>
           ) : (
-            // Placeholder for empty categories
-            <div className="text-center py-16 border-2 border-dashed border-secondary rounded-lg">
-              <h2 className="font-heading text-2xl font-bold text-foreground">Coming Soon!</h2>
+            <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
+              <h2 className="font-heading text-2xl font-bold text-foreground">No Listings Yet</h2>
               <p className="mt-2 text-foreground/70">
-                Listings for {category.name} will appear here as they are added.
+                There are currently no listings for {category.name}.
               </p>
+              <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
+                Be the first to create one!
+              </Link>
             </div>
           )}
         </div>

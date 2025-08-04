@@ -7,11 +7,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 
-// Data for Cards
+// THE FIX: Changed 'imageUrl' to 'imageUrls' and made it an array.
 const sampleListings = [
-  { href: "/explore/food-and-drink/banh-da-cua", title: "Bánh đa cua", description: "Famous crab noodle soup.", imageUrl: "/images/food-1.jpg" },
-  { href: "/stay/seaside-villa", title: "Seaside Villa", description: "Stunning view of Lan Ha Bay.", imageUrl: "/images/stay-1.jpg" },
-  { href: "/marketplace/rentals/honda-wave", title: "Honda Wave Bike", description: "Reliable and easy to ride.", imageUrl: "/images/rent-1.jpg" },
+  { href: "/explore/food-and-drink/banh-da-cua", title: "Bánh đa cua", description: "Famous crab noodle soup.", imageUrls: ["/images/food-1.jpg"] },
+  { href: "/stay/seaside-villa", title: "Seaside Villa", description: "Stunning view of Lan Ha Bay.", imageUrls: ["/images/stay-1.jpg"] },
+  { href: "/marketplace/rentals/honda-wave", title: "Honda Wave Bike", description: "Reliable and easy to ride.", imageUrls: ["/images/rent-1.jpg"] },
 ];
 
 const categoryLinks = [
@@ -21,17 +21,14 @@ const categoryLinks = [
   { href: '/stay', label: 'Stay', icon: BedDouble },
 ];
 
-// The component is now async to allow for server-side data fetching
 export default async function HomePage() {
-  // Fetch the user's session on the server
   const session = await getServerSession(authOptions);
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
       <section className="relative flex h-[60vh] w-full items-center justify-center">
-        <Image src="/images/haiphong-hero-background.jpg" alt="Haiphong Cityscape" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-black/60" />
+        <Image src="https://images.unsplash.com/photo-1688193662553-dd1ed64a77fd?q=80&w=2531&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Haiphong Cityscape" fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-black/30" />
         <div className="relative z-10 flex flex-col items-center p-4 text-center text-white">
           <h1 className="font-heading text-4xl font-bold md:text-6xl">Haiphong in Your Pocket</h1>
           <p className="mt-2 max-w-2xl text-lg md:text-xl">Discover, Shop, Connect.</p>
@@ -44,7 +41,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Category Quick-Nav */}
       <section className="container mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
           {categoryLinks.map((link) => (
@@ -58,11 +54,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Listings Section */}
       <section className="bg-secondary py-20">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-12 font-heading text-center text-3xl font-bold text-foreground">Featured This Week</h2>
           <div className="grid gap-8 md:grid-cols-3">
+            {/* The spread operator `{...item}` will now correctly pass `imageUrls` */}
             {sampleListings.map((item) => (
               <Card key={item.href} {...item} />
             ))}
@@ -70,8 +66,6 @@ export default async function HomePage() {
         </div>
       </section>
       
-      {/* Conditionally Rendered Call to Action Section */}
-      {/* This will only be rendered if the user is NOT logged in */}
       {!session && (
         <section className="container mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 lg:px-8">
             <h2 className="font-heading text-3xl font-bold text-foreground">Join the Community</h2>

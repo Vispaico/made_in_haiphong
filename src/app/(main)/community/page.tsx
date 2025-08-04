@@ -7,24 +7,24 @@ import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import CreatePostForm from '@/components/community/CreatePostForm';
-import LikeButton from '@/components/community/LikeButton'; // <-- Import LikeButton
+import LikeButton from '@/components/community/LikeButton';
 
 export default async function CommunityPage() {
   const session = await getServerSession(authOptions);
+  
+  // The Prisma query remains the same, as it already fetches all necessary data.
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       author: { select: { name: true, image: true } },
-      // Include likes in the query
       likes: {
         where: {
-          // Only include the current user's like, if it exists
           userId: session?.user?.id,
         },
         select: { userId: true },
       },
       _count: {
-        select: { comments: true, likes: true }, // Get total like count
+        select: { comments: true, likes: true },
       },
     },
   });
@@ -49,13 +49,21 @@ export default async function CommunityPage() {
                 <span className="font-semibold text-foreground">{post.author.name}</span>
               </div>
               <p className="mt-4 whitespace-pre-wrap text-foreground/90">{post.content}</p>
-              {post.imageUrl && (
+              
+              {/* THE FIX IS HERE: We now check the `imageUrls` array. */}
+              {/* If the array has images, we display the FIRST one as a preview. */}
+              {post.imageUrls && post.imageUrls.length > 0 && (
                 <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-lg">
-                  <Image src={post.imageUrl} alt="Community post image" fill className="object-cover" />
+                  <Image 
+                    src={post.imageUrls[0]} 
+                    alt="Community post image" 
+                    fill 
+                    className="object-cover" 
+                  />
                 </div>
               )}
+              
               <div className="mt-4 flex items-center gap-6 border-t border-secondary pt-4">
-                {/* Use the new LikeButton component */}
                 <LikeButton 
                   postId={post.id}
                   initialLikes={post._count.likes}
