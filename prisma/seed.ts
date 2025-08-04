@@ -4,9 +4,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Find a user to be the author of the posts.
-  // We'll try to find the user created via Google login.
-  // If not found, we'll create a new one.
+  // Clear existing posts to avoid duplicates when re-seeding
+  await prisma.post.deleteMany({});
+  
   let user = await prisma.user.findFirst();
   if (!user) {
     user = await prisma.user.create({
@@ -23,6 +23,7 @@ async function main() {
   await prisma.post.create({
     data: {
       content: "Just had the most amazing Bánh đa cua at a stall near the Opera House. The broth was incredible! Highly recommend finding it if you're in the area.",
+      // No image for this post, imageUrls will default to an empty array []
       authorId: user.id,
     },
   });
@@ -30,7 +31,8 @@ async function main() {
   await prisma.post.create({
     data: {
       content: "Tip for anyone visiting Cat Ba: rent a motorbike to explore the island yourself! It's much cheaper than a tour and you can find so many hidden beaches. The road through the national park is breathtaking.",
-      imageUrl: '/images/community-post-1.jpg',
+      // THE FIX IS HERE: Changed 'imageUrl' to 'imageUrls' and provided an array.
+      imageUrls: ['/images/community-post-1.jpg'],
       authorId: user.id,
     },
   });
