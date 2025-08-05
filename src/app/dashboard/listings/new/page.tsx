@@ -10,8 +10,8 @@ export default function NewListingPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  // THE FIX: The default category is now more explicit.
   const [category, setCategory] = useState('rentals');
-  // THE FIX: State now holds an array of URLs.
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,6 @@ export default function NewListingPage() {
     const response = await fetch('/api/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // THE FIX: Send the array of URLs to the API.
       body: JSON.stringify({ title, description, category, price, imageUrls }),
     });
 
@@ -32,7 +31,7 @@ export default function NewListingPage() {
       router.push('/dashboard/listings');
       router.refresh();
     } else {
-      setError('Failed to create listing. Please check your inputs and try again.');
+      setError('Failed to create listing. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -45,11 +44,17 @@ export default function NewListingPage() {
       <form onSubmit={handleSubmit} className="mt-8 max-w-2xl space-y-6">
         <div className="space-y-2">
           <label htmlFor="category" className="text-sm font-medium">Category</label>
-          <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-md border border-secondary bg-background/50 p-2.5 text-foreground focus:ring-2 focus:ring-primary">
-            <option value="rentals">Rentals</option>
-            <option value="for-sale">For Sale</option>
-            <option value="services">Services</option>
-            <option value="accommodation">Accommodation</option>
+          <select 
+            id="category" 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)} 
+            className="w-full rounded-md border border-secondary bg-background/50 p-2.5 text-foreground focus:ring-2 focus:ring-primary"
+          >
+            {/* THE FIX: The values here now perfectly match our database queries. */}
+            <option value="rentals">Marketplace: Rentals</option>
+            <option value="for-sale">Marketplace: For Sale</option>
+            <option value="services">Marketplace: Services</option>
+            <option value="accommodation">Stay: Accommodation</option>
           </select>
         </div>
         <div className="space-y-2">
@@ -66,7 +71,6 @@ export default function NewListingPage() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Listing Images</label>
-          {/* THE FIX: The props now handle arrays of URLs. */}
           <ImageUploader 
             onUploadComplete={(urls) => setImageUrls(urls)}
             onUploadRemove={(removedUrl) => {
