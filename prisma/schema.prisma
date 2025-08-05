@@ -9,7 +9,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model
+// --- ENUMS ---
+// THE FIX: Add an enum for booking statuses
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+// --- MODELS ---
+
 model User {
   id              String    @id @default(cuid())
   name            String?
@@ -27,9 +36,11 @@ model User {
   savedListings   SavedListing[]
   conversations   Conversation[] @relation("participants")
   sentMessages    Message[]      @relation("sender")
+  
+  // THE FIX: Add relation to the new Booking model
+  bookings        Booking[]
 }
 
-// Account model (unchanged)
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -47,7 +58,6 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-// Session model (unchanged)
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -56,7 +66,6 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// VerificationToken model (unchanged)
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -64,7 +73,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Post model
 model Post {
   id        String    @id @default(cuid())
   content   String
@@ -75,12 +83,9 @@ model Post {
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Comment[]
   likes     Like[]
-
-  // THE FIX: Add relation to the new saved item model
   savedBy   SavedPost[]
 }
 
-// Comment model (unchanged)
 model Comment {
   id        String   @id @default(cuid())
   text      String
@@ -91,7 +96,6 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
-// Like model (unchanged)
 model Like {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -102,7 +106,6 @@ model Like {
   @@unique([userId, postId])
 }
 
-// Listing model
 model Listing {
   id          String   @id @default(cuid())
   title       String
@@ -116,14 +119,12 @@ model Listing {
   updatedAt   DateTime @updatedAt
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  // THE FIX: Add relation to the new saved item model
   savedBy     SavedListing[]
+  
+  // THE FIX: Add relation to the new Booking model
+  bookings    Booking[]
 }
 
-// --- NEW MODELS FOR SAVED ITEMS ---
-
-// Connects a User to a saved Post
 model SavedPost {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -134,7 +135,6 @@ model SavedPost {
   @@unique([userId, postId])
 }
 
-// Connects a User to a saved Listing
 model SavedListing {
   id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
@@ -145,29 +145,36 @@ model SavedListing {
   @@unique([userId, listingId])
 }
 
-// Represents a conversation between two or more users
 model Conversation {
   id           String    @id @default(cuid())
   createdAt    DateTime  @default(now())
-  
-  // A conversation can have many messages
   messages     Message[]
-
-  // A conversation has many participants (users)
   participants User[]    @relation("participants")
 }
 
-// Represents a single message within a conversation
 model Message {
   id             String       @id @default(cuid())
   body           String       @db.Text
   createdAt      DateTime     @default(now())
-  
-  // The user who sent the message
   senderId       String
   sender         User         @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
-
-  // The conversation this message belongs to
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+// THE FIX: Add the new Booking model
+model Booking {
+  id          String        @id @default(cuid())
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  
+  // Relation to the User who made the booking
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relation to the Listing being booked
+  listingId   String
+  listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
