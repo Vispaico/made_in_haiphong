@@ -3,16 +3,17 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Post as PostType } from '@prisma/client'; // Import the real Post type
+import { Post as PostType } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import CreatePostForm from './CreatePostForm';
 import LikeButton from './LikeButton';
+import PostActions from './PostActions'; // THE FIX: Import the new PostActions component
 
-// Define a more complete type for our posts, including the relations
+// THE FIX: Added the `id` to the author type definition
 type PostWithRelations = PostType & {
-  author: { name: string | null; image: string | null };
+  author: { id: string; name: string | null; image: string | null };
   _count: { comments: number; likes: number };
 };
 
@@ -24,9 +25,7 @@ export default function CommunityFeedClient({ initialPosts }: CommunityFeedClien
   const { data: session } = useSession();
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
 
-  // This effect runs on the client after the page loads
   useEffect(() => {
-    // If the user is logged in, fetch their specific likes
     if (session?.user?.id) {
       const fetchLikes = async () => {
         try {
@@ -39,20 +38,27 @@ export default function CommunityFeedClient({ initialPosts }: CommunityFeedClien
       };
       fetchLikes();
     }
-  }, [session]); // Re-run if the session changes
+  }, [session]);
 
   return (
     <>
-      {/* The CreatePostForm is now rendered on the client, based on the session */}
       {session?.user && <CreatePostForm />}
       
       <div className="space-y-8">
         {initialPosts.map((post) => (
           <div key={post.id} className="rounded-xl border border-secondary bg-background p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
-              <span className="font-semibold text-foreground">{post.author.name}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
+                <span className="font-semibold text-foreground">{post.author.name}</span>
+              </div>
+              
+              {/* THE FIX: Conditionally render PostActions if the user is the author */}
+              {session?.user?.id === post.author.id && (
+                <PostActions postId={post.id} />
+              )}
             </div>
+
             <p className="mt-4 whitespace-pre-wrap text-foreground/90">{post.content}</p>
             
             {post.imageUrls && post.imageUrls.length > 0 && (
@@ -65,7 +71,6 @@ export default function CommunityFeedClient({ initialPosts }: CommunityFeedClien
               <LikeButton 
                 postId={post.id}
                 initialLikes={post._count.likes}
-                // The liked status is now determined by our dynamic client-side state
                 isInitiallyLiked={likedPostIds.has(post.id)}
               />
               <Link href={`/community/${post.id}`} className="flex items-center gap-1.5 transition-colors hover:text-primary">

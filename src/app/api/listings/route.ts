@@ -13,8 +13,9 @@ export async function POST(req: Request) {
   }
 
   try {
-    // THE FIX IS HERE: We now expect 'imageUrls' (an array).
-    const { title, description, category, price, imageUrls } = await req.json();
+    // THE FIX: Expect `maxGuests` and `bedrooms` in the request body
+    const body = await req.json();
+    const { title, description, category, price, imageUrls, maxGuests, bedrooms } = body;
 
     if (!title || !description || !category || !price) {
       return new NextResponse('Bad Request: Missing required fields', { status: 400 });
@@ -26,8 +27,10 @@ export async function POST(req: Request) {
         description,
         category,
         price: parseFloat(price),
-        // THE FIX IS HERE: We save the array of URLs.
         imageUrls: imageUrls || [],
+        // THE FIX: Add the new fields to the create operation
+        maxGuests: maxGuests ? parseInt(maxGuests) : null,
+        bedrooms: bedrooms ? parseInt(bedrooms) : null,
         authorId: session.user.id,
       },
     });

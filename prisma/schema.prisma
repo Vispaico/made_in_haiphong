@@ -23,9 +23,13 @@ model User {
   comments        Comment[]
   likes           Like[]
   listings        Listing[]
+  
+  // THE FIX: Add relations to the new saved item models
+  savedPosts      SavedPost[]
+  savedListings   SavedListing[]
 }
 
-// Account model
+// Account model (unchanged)
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -43,7 +47,7 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-// Session model
+// Session model (unchanged)
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -52,7 +56,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// VerificationToken model
+// VerificationToken model (unchanged)
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -66,17 +70,17 @@ model Post {
   content   String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  
-  // THE FIX IS HERE
   imageUrls String[]
-
   authorId  String
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Comment[]
   likes     Like[]
+
+  // THE FIX: Add relation to the new saved item model
+  savedBy   SavedPost[]
 }
 
-// Comment model
+// Comment model (unchanged)
 model Comment {
   id        String   @id @default(cuid())
   text      String
@@ -87,7 +91,7 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
-// Like model
+// Like model (unchanged)
 model Like {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -103,14 +107,40 @@ model Listing {
   id          String   @id @default(cuid())
   title       String
   description String   @db.Text
-  
-  // THE FIX IS HERE
   imageUrls   String[]
-
   category    String
   price       Float
+  maxGuests   Int?
+  bedrooms    Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // THE FIX: Add relation to the new saved item model
+  savedBy     SavedListing[]
+}
+
+// --- NEW MODELS FOR SAVED ITEMS ---
+
+// Connects a User to a saved Post
+model SavedPost {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId, postId])
+}
+
+// Connects a User to a saved Listing
+model SavedListing {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  @@unique([userId, listingId])
 }

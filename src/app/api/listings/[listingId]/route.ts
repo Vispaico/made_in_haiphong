@@ -26,7 +26,6 @@ export async function GET(
   }
 }
 
-// PATCH handler to update a listing
 export async function PATCH(
   req: Request,
   { params }: { params: { listingId: string } }
@@ -46,8 +45,9 @@ export async function PATCH(
       return new NextResponse('Forbidden', { status: 403 });
     }
 
+    // THE FIX: Expect `maxGuests` and `bedrooms` in the request body
     const body = await req.json();
-    const { title, description, category, price, imageUrls } = body;
+    const { title, description, category, price, imageUrls, maxGuests, bedrooms } = body;
 
     const updatedListing = await prisma.listing.update({
       where: { id: params.listingId },
@@ -57,6 +57,9 @@ export async function PATCH(
         category,
         price: parseFloat(price),
         imageUrls,
+        // THE FIX: Add the new fields to the update operation
+        maxGuests: maxGuests ? parseInt(maxGuests) : null,
+        bedrooms: bedrooms ? parseInt(bedrooms) : null,
       },
     });
 
