@@ -42,25 +42,11 @@ export const authOptions: NextAuthOptions = {
 
 callbacks: {
     async jwt({ token, user }) {
-      // --- START OF AGGRESSIVE DIAGNOSTIC LOGGING ---
-      console.log("--- JWT CALLBACK TRIGGERED ---");
-      // Log the incoming user object to see if it even has the isAdmin field from the DB
-      console.log("INCOMING 'user' OBJECT:", JSON.stringify(user, null, 2));
-      console.log("INCOMING 'token' OBJECT:", JSON.stringify(token, null, 2));
-      // --- END OF AGGRESSIVE DIAGNOSTIC LOGGING ---
-
-      // This is the logic that's supposed to add isAdmin to the token
       if (user) {
         const dbUser = user as User;
         token.id = dbUser.id;
         token.isAdmin = dbUser.isAdmin;
       }
-
-      // --- MORE LOGGING ---
-      console.log("OUTGOING 'token' OBJECT:", JSON.stringify(token, null, 2));
-      console.log("--------------------------");
-      // --------------------
-      
       return token;
     },
     async session({ session, token }) {
