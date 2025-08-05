@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-// THE FIX: The unused 'format' import has been removed.
 import { differenceInDays } from 'date-fns';
 
 interface BookingRequestProps {
@@ -63,6 +62,9 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
 
   return (
     <div className="space-y-4">
+      {/* THE FIX: We are adding a style override directly to the component */}
+      {/* to ensure it doesn't overflow its container. */}
+      <style>{`.rdp { --rdp-cell-size: 40px; }`}</style>
       <DayPicker
         mode="range"
         selected={range}
