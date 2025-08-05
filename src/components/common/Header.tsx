@@ -4,7 +4,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { ShipWheel, Search, X, Menu, UserCircle } from 'lucide-react';
+// THE FIX: Import the MessageSquare icon
+import { ShipWheel, Search, X, Menu, UserCircle, MessageSquare } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -43,6 +44,15 @@ export default function Header() {
           <div className="hidden items-center space-x-2 md:flex">
             {status === 'authenticated' ? (
               <>
+                {/* THE FIX: Add the new Messages icon link */}
+                <Link 
+                  href="/dashboard/messages" 
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground" 
+                  aria-label="Messages"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Link>
+
                 <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary">
                   <UserCircle className="h-5 w-5" />
                   <span>{session.user?.name}</span>
@@ -71,9 +81,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* --- Mobile Menu Dropdown --- */}
+      {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        // THE FIX IS HERE: Changed 'absolute' to 'fixed'
         <div className="fixed top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
           <nav className="flex flex-col space-y-1 p-4">
             {navLinks.map((link) => (
@@ -81,13 +90,17 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="!mt-4 flex flex-col pt-2">
+            <div className="!mt-4 flex flex-col space-y-1 border-t border-secondary pt-4">
               {status === 'authenticated' ? (
                 <>
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
                     My Dashboard
                   </Link>
-                  <button onClick={handleLogout} className="mt-1 rounded-md bg-accent px-3 py-2 text-left text-base font-medium text-white">
+                  {/* THE FIX: Add a Messages link to the mobile menu as well */}
+                  <Link href="/dashboard/messages" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
+                    Messages
+                  </Link>
+                  <button onClick={handleLogout} className="mt-2 rounded-md bg-accent px-3 py-2 text-left text-base font-medium text-white">
                     Log Out
                   </button>
                 </>
