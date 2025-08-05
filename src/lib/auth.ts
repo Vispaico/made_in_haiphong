@@ -41,21 +41,28 @@ export const authOptions: NextAuthOptions = {
   // In src/lib/auth.ts, replace the entire `callbacks` block
 
 callbacks: {
-    // This is the simplified and correct JWT callback.
-    // It ONLY runs with the `user` object on the initial sign-in,
-    // which happens in a Node.js environment where the database is accessible.
     async jwt({ token, user }) {
+      // --- START OF AGGRESSIVE DIAGNOSTIC LOGGING ---
+      console.log("--- JWT CALLBACK TRIGGERED ---");
+      // Log the incoming user object to see if it even has the isAdmin field from the DB
+      console.log("INCOMING 'user' OBJECT:", JSON.stringify(user, null, 2));
+      console.log("INCOMING 'token' OBJECT:", JSON.stringify(token, null, 2));
+      // --- END OF AGGRESSIVE DIAGNOSTIC LOGGING ---
+
+      // This is the logic that's supposed to add isAdmin to the token
       if (user) {
-        // This is safe because `user` comes directly from the authorize function or OAuth profile
         const dbUser = user as User;
         token.id = dbUser.id;
         token.isAdmin = dbUser.isAdmin;
       }
+
+      // --- MORE LOGGING ---
+      console.log("OUTGOING 'token' OBJECT:", JSON.stringify(token, null, 2));
+      console.log("--------------------------");
+      // --------------------
+      
       return token;
     },
-    
-    // The session callback remains the same. It runs on the serverless function
-    // and correctly reads the data that was put into the token.
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
