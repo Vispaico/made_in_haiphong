@@ -8,12 +8,15 @@ import { MessageSquare } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import CreatePostForm from '@/components/community/CreatePostForm';
 import LikeButton from '@/components/community/LikeButton';
-import { cache } from 'react'; // THE FIX: Import the 'cache' function from React
 
-// THE FIX: Create a cached function to get all public post data.
-// This function's result will be cached and shared across all users.
-const getPosts = cache(async () => {
-  console.log("--- FETCHING POSTS FROM DATABASE (CACHE MISS) ---");
+// THE FIX IS HERE: This line enables Incremental Static Regeneration.
+// It tells Next.js to cache the page and re-generate it at most once every 60 seconds.
+export const revalidate = 60; // Revalidate every 60 seconds
+
+export default async function CommunityPage() {
+  const session = await getServerSession(authOptions);
+  
+  // This Prisma query will now only run when the cache is stale (after 60 seconds)
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -23,28 +26,15 @@ const getPosts = cache(async () => {
       },
     },
   });
-  return posts;
-});
 
-export default async function CommunityPage() {
-  const session = await getServerSession(authOptions);
-  
-  // 1. Fetch the cached, public post data. This will be very fast.
-  const posts = await getPosts();
-
-  // 2. If the user is logged in, fetch their specific likes. This is a small, separate query.
   const userLikes = session?.user?.id ? await prisma.like.findMany({
     where: {
       userId: session.user.id,
-      // Only fetch likes for the posts that are currently being displayed
       postId: { in: posts.map(p => p.id) },
     },
-    select: {
-      postId: true,
-    },
+    select: { postId: true },
   }) : [];
 
-  // Create a quick lookup set for checking if a post is liked by the current user
   const likedPostIds = new Set(userLikes.map(like => like.postId));
 
   return (
@@ -80,7 +70,6 @@ export default async function CommunityPage() {
               )}
               
               <div className="mt-4 flex items-center gap-6 border-t border-secondary pt-4">
-                {/* THE FIX: The `isInitiallyLiked` prop is now determined by our separate, dynamic query */}
                 <LikeButton 
                   postId={post.id}
                   initialLikes={post._count.likes}
