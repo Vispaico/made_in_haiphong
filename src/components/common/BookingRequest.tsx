@@ -4,9 +4,10 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, type DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { differenceInDays, format } from 'date-fns';
+// THE FIX: The unused 'format' import has been removed.
+import { differenceInDays } from 'date-fns';
 
 interface BookingRequestProps {
   listingId: string;
@@ -17,12 +18,14 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
   const { status } = useSession();
   const router = useRouter();
   
-  // State for the selected date range
-  const [range, setRange] = useState<{ from: Date | undefined; to: Date | undefined } | undefined>();
+  const [range, setRange] = useState<DateRange | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Calculate the number of nights
+  const handleDateSelect = (selectedRange: DateRange | undefined) => {
+    setRange(selectedRange);
+  };
+
   const nights = range?.from && range?.to ? differenceInDays(range.to, range.from) : 0;
   const totalCost = nights * pricePerNight;
 
@@ -50,7 +53,6 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
     });
 
     if (response.ok) {
-      // On success, redirect to the 'My Bookings' page in the dashboard
       router.push('/dashboard/bookings?status=success');
     } else {
       const errorData = await response.text();
@@ -64,10 +66,14 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
       <DayPicker
         mode="range"
         selected={range}
-        onSelect={setRange}
+        onSelect={handleDateSelect}
         numberOfMonths={1}
-        disabled={{ before: new Date() }} // Disable past dates
+        disabled={{ before: new Date() }}
         className="border border-secondary rounded-lg bg-background"
+        classNames={{
+          day_selected: 'bg-primary text-white hover:bg-primary/90 focus:bg-primary/90',
+          day_today: 'text-accent',
+        }}
       />
       {nights > 0 && (
         <div className="p-4 rounded-lg bg-secondary space-y-2">
