@@ -28,13 +28,13 @@ export default async function HomePage() {
       <section className="relative flex h-[60vh] w-full items-center justify-center">
         {/* THE FIX IS HERE: Added the `priority` prop to the hero image */}
         <Image 
-          src="/images/haiphong-hero-background.jpg" 
+          src="https://images.unsplash.com/photo-1688193662553-dd1ed64a77fd?q=80&w=2531&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
           alt="Haiphong Cityscape" 
           fill 
           className="object-cover" 
           priority 
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/20" />
         <div className="relative z-10 flex flex-col items-center p-4 text-center text-white">
           <h1 className="font-heading text-4xl font-bold md:text-6xl">Haiphong in Your Pocket</h1>
           <p className="mt-2 max-w-2xl text-lg md:text-xl">Discover, Shop, Connect.</p>
