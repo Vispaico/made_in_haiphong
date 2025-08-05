@@ -1,22 +1,15 @@
 // src/app/(main)/community/page.tsx
 
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import Image from 'next/image';
-import Link from 'next/link';
-import { MessageSquare } from 'lucide-react';
 import prisma from '@/lib/prisma';
-import CreatePostForm from '@/components/community/CreatePostForm';
-import LikeButton from '@/components/community/LikeButton';
+import CommunityFeedClient from '@/components/community/CommunityFeedClient';
 
-// THE FIX IS HERE: This line enables Incremental Static Regeneration.
-// It tells Next.js to cache the page and re-generate it at most once every 60 seconds.
-export const revalidate = 60; // Revalidate every 60 seconds
+// This line enables Incremental Static Regeneration.
+// It tells Vercel to cache this page and rebuild it at most once every 60 seconds.
+export const revalidate = 60;
 
-export default async function CommunityPage() {
-  const session = await getServerSession(authOptions);
-  
-  // This Prisma query will now only run when the cache is stale (after 60 seconds)
+// This is a simplified function to get only the public post data.
+async function getPosts() {
+  console.log("--- FETCHING STATIC POSTS FROM DATABASE (CACHE MISS / REVALIDATION) ---");
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -26,16 +19,12 @@ export default async function CommunityPage() {
       },
     },
   });
+  return posts;
+}
 
-  const userLikes = session?.user?.id ? await prisma.like.findMany({
-    where: {
-      userId: session.user.id,
-      postId: { in: posts.map(p => p.id) },
-    },
-    select: { postId: true },
-  }) : [];
-
-  const likedPostIds = new Set(userLikes.map(like => like.postId));
+export default async function CommunityPage() {
+  // This page now ONLY fetches the static, public data.
+  const posts = await getPosts();
 
   return (
     <div className="bg-secondary py-12">
@@ -47,42 +36,8 @@ export default async function CommunityPage() {
           </p>
         </div>
         
-        {session?.user && <CreatePostForm />}
-        
-        <div className="space-y-8">
-          {posts.map((post) => (
-            <div key={post.id} className="rounded-xl border border-secondary bg-background p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
-                <span className="font-semibold text-foreground">{post.author.name}</span>
-              </div>
-              <p className="mt-4 whitespace-pre-wrap text-foreground/90">{post.content}</p>
-              
-              {post.imageUrls && post.imageUrls.length > 0 && (
-                <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-lg">
-                  <Image 
-                    src={post.imageUrls[0]} 
-                    alt="Community post image" 
-                    fill 
-                    className="object-cover" 
-                  />
-                </div>
-              )}
-              
-              <div className="mt-4 flex items-center gap-6 border-t border-secondary pt-4">
-                <LikeButton 
-                  postId={post.id}
-                  initialLikes={post._count.likes}
-                  isInitiallyLiked={likedPostIds.has(post.id)}
-                />
-                <Link href={`/community/${post.id}`} className="flex items-center gap-1.5 transition-colors hover:text-primary">
-                  <MessageSquare className="h-5 w-5 text-foreground/70" />
-                  <span className="text-sm text-foreground/70">{post._count.comments} Comments</span>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* We pass the static data to our new client component, which handles all user interactions */}
+        <CommunityFeedClient initialPosts={posts} />
       </div>
     </div>
   );
