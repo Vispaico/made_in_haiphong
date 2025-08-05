@@ -4,6 +4,7 @@ import Card from '@/components/ui/Card';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { cache } from 'react'; // Import cache
 
 const categoryInfo: { [key: string]: { name: string; description: string } } = {
   'rentals': { name: 'Rentals', description: 'Find the perfect item to rent for your trip or project.' },
@@ -12,21 +13,22 @@ const categoryInfo: { [key: string]: { name: string; description: string } } = {
   'accommodation': { name: 'Accommodation', description: 'Find the perfect place to stay during your trip.' },
 };
 
+// THE FIX: Create a cached function to get listings for a specific category.
+const getListingsByCategory = cache(async (category: string) => {
+  console.log(`--- FETCHING LISTINGS FOR CATEGORY: ${category} (CACHE MISS) ---`);
+  const listings = await prisma.listing.findMany({
+    where: { category },
+    orderBy: { createdAt: 'desc' },
+  });
+  return listings;
+});
+
 export default async function MarketplaceCategoryPage({ params }: { params: { category: string } }) {
   const category = categoryInfo[params.category];
+  if (!category) notFound();
 
-  if (!category) {
-    notFound();
-  }
-
-  const listings = await prisma.listing.findMany({
-    where: {
-      category: params.category,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  // Use the cached function to fetch data
+  const listings = await getListingsByCategory(params.category);
 
   return (
     <div className="bg-background py-16">
@@ -34,11 +36,8 @@ export default async function MarketplaceCategoryPage({ params }: { params: { ca
         <div className="text-left">
           <p className="font-semibold text-primary">Marketplace</p>
           <h1 className="font-heading text-4xl font-bold text-foreground">{category.name}</h1>
-          <p className="mx-auto mt-2 max-w-2xl text-lg text-foreground/80">
-            {category.description}
-          </p>
+          <p className="mx-auto mt-2 max-w-2xl text-lg text-foreground/80">{category.description}</p>
         </div>
-
         <div className="mt-16">
           {listings.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -48,7 +47,6 @@ export default async function MarketplaceCategoryPage({ params }: { params: { ca
                   href={`/marketplace/${listing.category}/${listing.id}`}
                   title={listing.title}
                   description={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}`}
-                  // THE FIX IS HERE: Changed 'imageUrl' to 'imageUrls' to match the Card's props.
                   imageUrls={listing.imageUrls}
                 />
               ))}
@@ -56,9 +54,7 @@ export default async function MarketplaceCategoryPage({ params }: { params: { ca
           ) : (
             <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
               <h2 className="font-heading text-2xl font-bold text-foreground">No Listings Yet</h2>
-              <p className="mt-2 text-foreground/70">
-                There are currently no listings for {category.name}.
-              </p>
+              <p className="mt-2 text-foreground/70">There are currently no listings for {category.name}.</p>
               <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
                 Be the first to create one!
               </Link>

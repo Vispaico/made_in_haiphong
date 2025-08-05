@@ -8,26 +8,44 @@ import { MessageSquare } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import CreatePostForm from '@/components/community/CreatePostForm';
 import LikeButton from '@/components/community/LikeButton';
+import { cache } from 'react'; // THE FIX: Import the 'cache' function from React
 
-export default async function CommunityPage() {
-  const session = await getServerSession(authOptions);
-  
-  // The Prisma query remains the same, as it already fetches all necessary data.
+// THE FIX: Create a cached function to get all public post data.
+// This function's result will be cached and shared across all users.
+const getPosts = cache(async () => {
+  console.log("--- FETCHING POSTS FROM DATABASE (CACHE MISS) ---");
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       author: { select: { name: true, image: true } },
-      likes: {
-        where: {
-          userId: session?.user?.id,
-        },
-        select: { userId: true },
-      },
       _count: {
         select: { comments: true, likes: true },
       },
     },
   });
+  return posts;
+});
+
+export default async function CommunityPage() {
+  const session = await getServerSession(authOptions);
+  
+  // 1. Fetch the cached, public post data. This will be very fast.
+  const posts = await getPosts();
+
+  // 2. If the user is logged in, fetch their specific likes. This is a small, separate query.
+  const userLikes = session?.user?.id ? await prisma.like.findMany({
+    where: {
+      userId: session.user.id,
+      // Only fetch likes for the posts that are currently being displayed
+      postId: { in: posts.map(p => p.id) },
+    },
+    select: {
+      postId: true,
+    },
+  }) : [];
+
+  // Create a quick lookup set for checking if a post is liked by the current user
+  const likedPostIds = new Set(userLikes.map(like => like.postId));
 
   return (
     <div className="bg-secondary py-12">
@@ -50,8 +68,6 @@ export default async function CommunityPage() {
               </div>
               <p className="mt-4 whitespace-pre-wrap text-foreground/90">{post.content}</p>
               
-              {/* THE FIX IS HERE: We now check the `imageUrls` array. */}
-              {/* If the array has images, we display the FIRST one as a preview. */}
               {post.imageUrls && post.imageUrls.length > 0 && (
                 <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-lg">
                   <Image 
@@ -64,10 +80,11 @@ export default async function CommunityPage() {
               )}
               
               <div className="mt-4 flex items-center gap-6 border-t border-secondary pt-4">
+                {/* THE FIX: The `isInitiallyLiked` prop is now determined by our separate, dynamic query */}
                 <LikeButton 
                   postId={post.id}
                   initialLikes={post._count.likes}
-                  isInitiallyLiked={post.likes.length > 0}
+                  isInitiallyLiked={likedPostIds.has(post.id)}
                 />
                 <Link href={`/community/${post.id}`} className="flex items-center gap-1.5 transition-colors hover:text-primary">
                   <MessageSquare className="h-5 w-5 text-foreground/70" />

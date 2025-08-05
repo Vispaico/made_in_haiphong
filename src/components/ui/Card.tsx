@@ -2,18 +2,16 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Camera } from 'lucide-react'; // Import the Camera icon
+import { Camera } from 'lucide-react';
 
-// THE FIX: The props are updated to accept an array of URLs
 interface CardProps {
   href: string;
-  imageUrls: string[]; // Changed from imageUrl: string
+  imageUrls: string[];
   title: string;
   description: string;
 }
 
 export default function Card({ href, imageUrls, title, description }: CardProps) {
-  // Use the first image as the preview, or a placeholder if the array is empty
   const previewImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : '/images/placeholder.png';
   const imageCount = imageUrls ? imageUrls.length : 0;
 
@@ -25,9 +23,10 @@ export default function Card({ href, imageUrls, title, description }: CardProps)
             src={previewImage} 
             alt={title} 
             fill 
-            className="object-cover transition-transform duration-300 group-hover:scale-105" 
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            // THE FIX IS HERE: Add the `sizes` prop for responsive image optimization.
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          {/* THE FIX: Add the counter overlay if there is more than one image */}
           {imageCount > 1 && (
             <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs text-white">
               <Camera className="h-3 w-3" />
