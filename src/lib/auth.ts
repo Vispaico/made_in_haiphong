@@ -41,30 +41,21 @@ export const authOptions: NextAuthOptions = {
   // In src/lib/auth.ts, replace the entire `callbacks` block
 
 callbacks: {
-    // This JWT callback is now more robust.
+    // This is the simplified and correct JWT callback.
+    // It ONLY runs with the `user` object on the initial sign-in,
+    // which happens in a Node.js environment where the database is accessible.
     async jwt({ token, user }) {
-      // On the initial sign-in, the user object is available.
       if (user) {
+        // This is safe because `user` comes directly from the authorize function or OAuth profile
         const dbUser = user as User;
         token.id = dbUser.id;
         token.isAdmin = dbUser.isAdmin;
-        return token;
       }
-
-      // On subsequent requests, the user object is not available.
-      // We check if the isAdmin flag is already in the token. If not, we fetch it.
-      if (token && typeof token.isAdmin === 'undefined') {
-        console.log("--- JWT CALLBACK: isAdmin missing, re-fetching from DB ---");
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-        });
-        if (dbUser) {
-          token.isAdmin = dbUser.isAdmin;
-        }
-      }
-      
       return token;
     },
+    
+    // The session callback remains the same. It runs on the serverless function
+    // and correctly reads the data that was put into the token.
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
