@@ -1,10 +1,9 @@
 // src/app/(main)/explore/[category]/page.tsx
 
 import Card from '@/components/ui/Card';
-import prisma from '@/lib/prisma'; // Import the Prisma client
+import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
-// A map for user-friendly category names and descriptions
 const categoryInfo: { [key: string]: { name: string; description: string } } = {
   'food-and-drink': { name: 'Food & Drink', description: 'Discover the taste of Haiphong.' },
   'sights-and-culture': { name: 'Sights & Culture', description: 'Explore historic landmarks and beautiful islands.' },
@@ -13,15 +12,10 @@ const categoryInfo: { [key: string]: { name: string; description: string } } = {
 
 export default async function CategoryPage({ params }: { params: { category: string } }) {
   const category = categoryInfo[params.category];
+  if (!category) notFound();
 
-  // If the category from the URL is not valid, show a 404 page
-  if (!category) {
-    notFound();
-  }
-
-  // NOTE: This assumes you have an administrative way to add listings
-  // to the database with these categories. For now, it might be empty.
-  const listings = await prisma.listing.findMany({
+  // THE FIX: We are now fetching from the `exploreEntry` model, not the `listing` model.
+  const entries = await prisma.exploreEntry.findMany({
     where: {
       category: params.category,
     },
@@ -40,16 +34,17 @@ export default async function CategoryPage({ params }: { params: { category: str
         </div>
 
         <div className="mt-16">
-          {listings.length > 0 ? (
+          {entries.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {listings.map((listing) => (
+              {entries.map((entry) => (
                 <Card
-                  key={listing.id}
-                  href={`/explore/${listing.category}/${listing.id}`} // We'll need to create this detail page later
-                  title={listing.title}
-                  description={`${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}`}
-                  // THE FIX: The Card component now receives the correct `imageUrls` prop.
-                  imageUrls={listing.imageUrls}
+                  key={entry.id}
+                  // THE FIX: The link now points to the explore detail page.
+                  href={`/explore/${entry.category}/${entry.id}`}
+                  title={entry.title}
+                  // THE FIX: The description now comes from the entry's description field.
+                  description={entry.description}
+                  imageUrls={entry.imageUrls}
                 />
               ))}
             </div>
@@ -57,7 +52,7 @@ export default async function CategoryPage({ params }: { params: { category: str
             <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
               <h2 className="font-heading text-2xl font-bold text-foreground">Coming Soon</h2>
               <p className="mt-2 text-foreground/70">
-                Content for {category.name} is being curated and will appear here soon.
+                Content for `&quot;{category.name}`&quot; is being curated and will appear here soon.
               </p>
             </div>
           )}

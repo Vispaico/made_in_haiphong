@@ -26,6 +26,10 @@ model User {
   hashedPassword  String?
   emailVerified   DateTime?
   image           String?
+  
+  // THE FIX IS HERE: Add the new isAdmin field
+  isAdmin         Boolean   @default(false)
+
   accounts        Account[]
   sessions        Session[]
   posts           Post[]
@@ -36,8 +40,6 @@ model User {
   savedListings   SavedListing[]
   conversations   Conversation[] @relation("participants")
   sentMessages    Message[]      @relation("sender")
-  
-  // THE FIX: Add relation to the new Booking model
   bookings        Booking[]
 }
 
@@ -177,4 +179,17 @@ model Booking {
   // Relation to the Listing being booked
   listingId   String
   listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// ExploreEntry model: Represents a curated article or listing in the Explore section.
+model ExploreEntry {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text // A short summary for the card view
+  body        String   @db.Text // The full content for the detail page
+  imageUrls   String[]
+  category    String   // e.g., "food-and-drink", "sights-and-culture"
+  address     String?  // Optional address for the location
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
