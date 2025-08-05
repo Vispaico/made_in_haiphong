@@ -3,29 +3,31 @@
 import Card from '@/components/ui/Card';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
-import { cache } from 'react'; // Import cache
 
-// THE FIX: Create a cached function to get accommodation listings.
-const getAccommodations = cache(async () => {
-  console.log("--- FETCHING ACCOMMODATIONS FROM DATABASE (CACHE MISS) ---");
-  const accommodations = await prisma.listing.findMany({
-    where: { category: 'accommodation' },
-    orderBy: { createdAt: 'desc' },
-  });
-  return accommodations;
-});
+// THE FIX IS HERE: This tells Vercel to treat this page as dynamic
+// and re-fetch its data from the database at most once every 60 seconds.
+export const revalidate = 60;
 
 export default async function StayPage() {
-  // Use the cached function to fetch data
-  const accommodations = await getAccommodations();
+  const accommodations = await prisma.listing.findMany({
+    where: {
+      category: 'accommodation',
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
   return (
     <div className="bg-background py-16">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="font-heading text-4xl font-bold text-foreground">Find Your Place to Stay</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">From luxury villas to cozy apartments, find the perfect accommodation for your trip.</p>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
+            From luxury villas to cozy apartments, find the perfect accommodation for your trip.
+          </p>
         </div>
+
         <div className="mt-16">
           {accommodations.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -42,7 +44,9 @@ export default async function StayPage() {
           ) : (
             <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
               <h2 className="font-heading text-2xl font-bold text-foreground">No Accommodations Available Yet</h2>
-              <p className="mt-2 text-foreground/70">Check back soon for places to stay in Haiphong.</p>
+              <p className="mt-2 text-foreground/70">
+                Check back soon for places to stay in Haiphong.
+              </p>
               <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
                 Are you a host? List your place now!
               </Link>
