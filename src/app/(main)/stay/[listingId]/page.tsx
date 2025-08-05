@@ -6,19 +6,18 @@ import { Star, Users, Home } from 'lucide-react';
 import ImageCarousel from '@/components/common/ImageCarousel';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import SaveButton from '@/components/common/SaveButton'; // Import the new component
+import SaveButton from '@/components/common/SaveButton';
+import ContactSellerButton from '@/components/common/ContactSellerButton';
 
 export default async function StayDetailPage({ params }: { params: { listingId: string } }) {
   const session = await getServerSession(authOptions);
-
   const accommodation = await prisma.listing.findUnique({
     where: {
       id: params.listingId,
       category: 'accommodation',
     },
     include: {
-      author: { select: { name: true, image: true } },
-      // THE FIX: Include the savedBy relation
+      author: { select: { id: true, name: true, image: true } },
       savedBy: {
         where: { userId: session?.user?.id },
         select: { userId: true },
@@ -26,11 +25,7 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
     },
   });
 
-  if (!accommodation) {
-    notFound();
-  }
-
-  // THE FIX: Determine the initial saved state
+  if (!accommodation) notFound();
   const isInitiallySaved = accommodation.savedBy.length > 0;
 
   return (
@@ -43,27 +38,14 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-foreground/80">
               <div className="flex items-center gap-1.5">
                 <Star className="h-5 w-5 text-yellow-400" fill="currentColor" />
-                <span className="font-semibold">4.9</span>
-                <span className="text-foreground/60">(85 reviews)</span>
+                <span className="font-semibold">4.9</span> <span className="text-foreground/60">(85 reviews)</span>
               </div>
             </div>
             {(accommodation.maxGuests || accommodation.bedrooms) && (
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-foreground/80">
-                {accommodation.maxGuests && (
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-5 w-5" />
-                    <span>{accommodation.maxGuests} Guests</span>
-                  </div>
-                )}
-                {accommodation.maxGuests && accommodation.bedrooms && (
-                  <span className="text-foreground/30">•</span>
-                )}
-                {accommodation.bedrooms && (
-                  <div className="flex items-center gap-1.5">
-                    <Home className="h-5 w-5" />
-                    <span>{accommodation.bedrooms} Bedrooms</span>
-                  </div>
-                )}
+                {accommodation.maxGuests && (<div className="flex items-center gap-1.5"><Users className="h-5 w-5" /><span>{accommodation.maxGuests} Guests</span></div>)}
+                {accommodation.maxGuests && accommodation.bedrooms && (<span className="text-foreground/30">•</span>)}
+                {accommodation.bedrooms && (<div className="flex items-center gap-1.5"><Home className="h-5 w-5" /><span>{accommodation.bedrooms} Bedrooms</span></div>)}
               </div>
             )}
             <div className="mt-8">
@@ -73,19 +55,10 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
           </div>
           <div className="md:col-span-1">
             <div className="sticky top-28 rounded-lg border border-secondary bg-background p-6 shadow-lg">
-              <p className="text-2xl font-bold text-foreground">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(accommodation.price)}
-                <span className="text-base font-normal text-foreground/70"> / night</span>
-              </p>
-              <button className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-accent px-4 py-3 font-semibold text-white transition-colors hover:bg-accent/90">
-                Request to Book
-              </button>
-              {/* THE FIX: Replace the old button with our new dynamic SaveButton */}
-              <SaveButton 
-                itemId={accommodation.id}
-                itemType="listing"
-                isInitiallySaved={isInitiallySaved}
-              />
+              <p className="text-2xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(accommodation.price)}<span className="text-base font-normal text-foreground/70"> / night</span></p>
+              {/* THE FIX: Pass the primitive user ID, not the whole session object */}
+              <ContactSellerButton sellerId={accommodation.authorId} currentUserId={session?.user?.id} />
+              <SaveButton itemId={accommodation.id} itemType="listing" isInitiallySaved={isInitiallySaved} />
             </div>
           </div>
         </div>

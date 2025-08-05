@@ -2,20 +2,19 @@
 
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { Tag, User, MessageSquare } from 'lucide-react';
+import { Tag, User } from 'lucide-react';
 import ImageCarousel from '@/components/common/ImageCarousel';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import SaveButton from '@/components/common/SaveButton'; // Import the new component
+import SaveButton from '@/components/common/SaveButton';
+import ContactSellerButton from '@/components/common/ContactSellerButton';
 
 export default async function MarketplaceDetailPage({ params }: { params: { listingId: string } }) {
   const session = await getServerSession(authOptions);
-  
   const listing = await prisma.listing.findUnique({
     where: { id: params.listingId },
     include: {
-      author: { select: { name: true, image: true } },
-      // THE FIX: Include the savedBy relation to check if the current user has saved this item
+      author: { select: { id: true, name: true, image: true } },
       savedBy: {
         where: { userId: session?.user?.id },
         select: { userId: true },
@@ -23,11 +22,7 @@ export default async function MarketplaceDetailPage({ params }: { params: { list
     },
   });
 
-  if (!listing) {
-    notFound();
-  }
-
-  // THE FIX: Determine if the item is saved by checking if the savedBy array is not empty
+  if (!listing) notFound();
   const isInitiallySaved = listing.savedBy.length > 0;
 
   return (
@@ -52,20 +47,11 @@ export default async function MarketplaceDetailPage({ params }: { params: { list
             <div className="sticky top-28 rounded-lg border border-secondary bg-background p-6 shadow-lg">
               <div className="flex items-center gap-2">
                 <Tag className="h-6 w-6 text-primary" />
-                <p className="text-3xl font-bold text-foreground">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}
-                </p>
+                <p className="text-3xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}</p>
               </div>
-              <button className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 font-semibold text-white transition-colors hover:bg-accent/90">
-                <MessageSquare className="h-5 w-5" />
-                Contact Seller
-              </button>
-              {/* THE FIX: Replace the old button with our new dynamic SaveButton */}
-              <SaveButton 
-                itemId={listing.id}
-                itemType="listing"
-                isInitiallySaved={isInitiallySaved}
-              />
+              {/* THE FIX: Pass the primitive user ID, not the whole session object */}
+              <ContactSellerButton sellerId={listing.authorId} currentUserId={session?.user?.id} />
+              <SaveButton itemId={listing.id} itemType="listing" isInitiallySaved={isInitiallySaved} />
             </div>
           </div>
         </div>

@@ -23,10 +23,10 @@ model User {
   comments        Comment[]
   likes           Like[]
   listings        Listing[]
-  
-  // THE FIX: Add relations to the new saved item models
   savedPosts      SavedPost[]
   savedListings   SavedListing[]
+  conversations   Conversation[] @relation("participants")
+  sentMessages    Message[]      @relation("sender")
 }
 
 // Account model (unchanged)
@@ -143,4 +143,31 @@ model SavedListing {
   listingId   String
   listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   @@unique([userId, listingId])
+}
+
+// Represents a conversation between two or more users
+model Conversation {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  
+  // A conversation can have many messages
+  messages     Message[]
+
+  // A conversation has many participants (users)
+  participants User[]    @relation("participants")
+}
+
+// Represents a single message within a conversation
+model Message {
+  id             String       @id @default(cuid())
+  body           String       @db.Text
+  createdAt      DateTime     @default(now())
+  
+  // The user who sent the message
+  senderId       String
+  sender         User         @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // The conversation this message belongs to
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
