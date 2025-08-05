@@ -8,9 +8,11 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import SaveButton from '@/components/common/SaveButton';
 import ContactSellerButton from '@/components/common/ContactSellerButton';
+import BookingRequest from '@/components/common/BookingRequest'; // Import the new component
 
 export default async function StayDetailPage({ params }: { params: { listingId: string } }) {
   const session = await getServerSession(authOptions);
+
   const accommodation = await prisma.listing.findUnique({
     where: {
       id: params.listingId,
@@ -26,6 +28,7 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
   });
 
   if (!accommodation) notFound();
+  
   const isInitiallySaved = accommodation.savedBy.length > 0;
 
   return (
@@ -55,10 +58,15 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
           </div>
           <div className="md:col-span-1">
             <div className="sticky top-28 rounded-lg border border-secondary bg-background p-6 shadow-lg">
-              <p className="text-2xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(accommodation.price)}<span className="text-base font-normal text-foreground/70"> / night</span></p>
-              {/* THE FIX: Pass the primitive user ID, not the whole session object */}
-              <ContactSellerButton sellerId={accommodation.authorId} currentUserId={session?.user?.id} />
-              <SaveButton itemId={accommodation.id} itemType="listing" isInitiallySaved={isInitiallySaved} />
+              {/* THE FIX: The buttons are replaced with our new BookingRequest widget */}
+              <BookingRequest 
+                listingId={accommodation.id}
+                pricePerNight={accommodation.price}
+              />
+              <div className="mt-4 border-t border-secondary pt-4">
+                <ContactSellerButton sellerId={accommodation.authorId} currentUserId={session?.user?.id} />
+                <SaveButton itemId={accommodation.id} itemType="listing" isInitiallySaved={isInitiallySaved} />
+              </div>
             </div>
           </div>
         </div>
