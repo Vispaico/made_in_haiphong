@@ -1,4 +1,4 @@
-// src/app/(main)/marketplace/[category]/[listingId]/page.tsx
+// src/app/(main)/marketplace/[category]/[id]/page.tsx
 
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
@@ -9,16 +9,13 @@ import { authOptions } from '@/lib/auth';
 import SaveButton from '@/components/common/SaveButton';
 import ContactSellerButton from '@/components/common/ContactSellerButton';
 
-export default async function MarketplaceDetailPage({ params }: { params: { listingId: string } }) {
+export default async function MarketplaceDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   const listing = await prisma.listing.findUnique({
-    where: { id: params.listingId },
+    where: { id: params.id },
     include: {
       author: { select: { id: true, name: true, image: true } },
-      savedBy: {
-        where: { userId: session?.user?.id },
-        select: { userId: true },
-      },
+      savedBy: { where: { userId: session?.user?.id }, select: { userId: true } },
     },
   });
 
@@ -33,10 +30,7 @@ export default async function MarketplaceDetailPage({ params }: { params: { list
           <div className="md:col-span-2">
             <h1 className="font-heading text-4xl font-bold text-foreground">{listing.title}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-foreground/80">
-              <div className="flex items-center gap-1.5">
-                <User className="h-5 w-5" />
-                <span>Seller: {listing.author.name}</span>
-              </div>
+              <div className="flex items-center gap-1.5"><User className="h-5 w-5" /><span>Seller: {listing.author.name}</span></div>
             </div>
             <div className="mt-8">
               <h2 className="font-heading text-2xl font-bold text-foreground">About this item</h2>
@@ -45,11 +39,7 @@ export default async function MarketplaceDetailPage({ params }: { params: { list
           </div>
           <div className="md:col-span-1">
             <div className="sticky top-28 rounded-lg border border-secondary bg-background p-6 shadow-lg">
-              <div className="flex items-center gap-2">
-                <Tag className="h-6 w-6 text-primary" />
-                <p className="text-3xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}</p>
-              </div>
-              {/* THE FIX: Pass the primitive user ID, not the whole session object */}
+              <div className="flex items-center gap-2"><Tag className="h-6 w-6 text-primary" /><p className="text-3xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(listing.price)}</p></div>
               <ContactSellerButton sellerId={listing.authorId} currentUserId={session?.user?.id} />
               <SaveButton itemId={listing.id} itemType="listing" isInitiallySaved={isInitiallySaved} />
             </div>

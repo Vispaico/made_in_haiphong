@@ -31,38 +31,33 @@ export async function PATCH(
   { params }: { params: { listingId: string } }
 ) {
   const session = await getServerSession(authOptions);
-
   if (!session?.user?.id) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
   try {
-    const listing = await prisma.listing.findUnique({
-      where: { id: params.listingId },
-    });
-
+    const listing = await prisma.listing.findUnique({ where: { id: params.listingId } });
     if (!listing || listing.authorId !== session.user.id) {
       return new NextResponse('Forbidden', { status: 403 });
     }
 
-    // THE FIX: Expect `maxGuests` and `bedrooms` in the request body
     const body = await req.json();
-    const { title, description, category, price, imageUrls, maxGuests, bedrooms } = body;
+    // THE FIX: Expect latitude and longitude
+    const { title, description, category, price, imageUrls, maxGuests, bedrooms, latitude, longitude } = body;
 
     const updatedListing = await prisma.listing.update({
       where: { id: params.listingId },
       data: {
-        title,
-        description,
-        category,
+        title, description, category,
         price: parseFloat(price),
         imageUrls,
-        // THE FIX: Add the new fields to the update operation
         maxGuests: maxGuests ? parseInt(maxGuests) : null,
         bedrooms: bedrooms ? parseInt(bedrooms) : null,
+        // THE FIX: Add the new fields to the update operation
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
       },
     });
-
     return NextResponse.json(updatedListing);
   } catch (error) {
     console.error("Error updating listing:", error);

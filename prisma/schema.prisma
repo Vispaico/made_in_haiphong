@@ -117,13 +117,16 @@ model Listing {
   price       Float
   maxGuests   Int?
   bedrooms    Int?
+  
+  // Add new optional fields for location coordinates
+  latitude    Float?
+  longitude   Float?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   savedBy     SavedListing[]
-  
-  // THE FIX: Add relation to the new Booking model
   bookings    Booking[]
 }
 
@@ -164,7 +167,7 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
-// THE FIX: Add the new Booking model
+// New Booking model
 model Booking {
   id          String        @id @default(cuid())
   startDate   DateTime
@@ -181,15 +184,47 @@ model Booking {
   listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
 
+// --- ADD NEW ENUM ---
+enum CategoryType {
+  EXPLORE
+  MARKETPLACE
+}
+
+// --- ADD NEW MODEL ---
+model Category {
+  id          String       @id @default(cuid())
+  name        String       // e.g., "Food & Drink"
+  slug        String       @unique // e.g., "food-and-drink"
+  type        CategoryType // Is it for EXPLORE or MARKETPLACE?
+  createdAt   DateTime     @default(now())
+}
+
 // ExploreEntry model: Represents a curated article or listing in the Explore section.
 model ExploreEntry {
   id          String   @id @default(cuid())
   title       String
-  description String   @db.Text // A short summary for the card view
-  body        String   @db.Text // The full content for the detail page
+  description String   @db.Text
+  body        String   @db.Text
   imageUrls   String[]
-  category    String   // e.g., "food-and-drink", "sights-and-culture"
-  address     String?  // Optional address for the location
+  category    String
+  address     String?
+ 
+  // THE FIX: Add new optional fields for location coordinates
+  latitude    Float?
+  longitude   Float?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// Add this new model to the end of prisma/schema.prisma
+
+// Announcement model: Represents a site-wide announcement banner.
+model Announcement {
+  id        String   @id @default(cuid())
+  message   String   @db.Text
+  isActive  Boolean  @default(true) // Controls whether the banner is shown
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

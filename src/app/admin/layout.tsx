@@ -1,14 +1,16 @@
 // src/app/admin/layout.tsx
 
 import Link from 'next/link';
-// THE FIX: Import the 'Compass' icon for our new link
-import { Shield, LayoutGrid, Users, Settings, Compass } from 'lucide-react';
+// THE FIX: Import the 'LayoutList' icon for our new link
+import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList } from 'lucide-react';
+import AdminHeader from '@/components/admin/AdminHeader';
 
-// THE FIX: Add the new "Manage Explore" link to the navigation array
+// THE FIX: Add the new "Manage Categories" link to the navigation array
 const adminNavLinks = [
   { href: '/admin', label: 'Manage Listings', icon: LayoutGrid },
   { href: '/admin/users', label: 'Manage Users', icon: Users },
-  { href: '/admin/explore', label: 'Manage Explore', icon: Compass }, // This is the new link
+  { href: '/admin/explore', label: 'Manage Explore', icon: Compass },
+  { href: '/admin/categories', label: 'Manage Categories', icon: LayoutList }, // This is the new link
   { href: '/admin/settings', label: 'Admin Settings', icon: Settings },
 ];
 
@@ -19,6 +21,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-secondary">
+      {/* --- Desktop Sidebar --- */}
       <aside className="hidden w-64 flex-col border-r border-secondary bg-background p-4 md:flex">
         <div className="mb-8">
           <Link href="/admin" className="flex items-center gap-2 text-red-500">
@@ -39,9 +42,15 @@ export default function AdminLayout({
           ))}
         </nav>
       </aside>
-      <main className="flex-1 p-4 md:p-8">
-        {children}
-      </main>
+      
+      {/* --- Main Content Area --- */}
+      <div className="flex flex-1 flex-col">
+        <AdminHeader />
+        
+        <main className="flex-grow p-4 md:p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

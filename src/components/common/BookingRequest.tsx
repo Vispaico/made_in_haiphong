@@ -62,19 +62,33 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
 
   return (
     <div className="space-y-4">
-      {/* THE FIX: We are adding a style override directly to the component */}
-      {/* to ensure it doesn't overflow its container. */}
-      <style>{`.rdp { --rdp-cell-size: 40px; }`}</style>
       <DayPicker
         mode="range"
         selected={range}
         onSelect={handleDateSelect}
         numberOfMonths={1}
         disabled={{ before: new Date() }}
-        className="border border-secondary rounded-lg bg-background"
+        // THE FIX: We are now using the `classNames` prop to apply Tailwind classes directly.
+        // This is the correct and robust way to style the component.
         classNames={{
+          root: 'border border-secondary rounded-lg bg-background p-3',
+          caption: 'flex items-center justify-between px-1 mb-2',
+          caption_label: 'font-heading text-base font-bold',
+          nav_button: 'h-7 w-7 p-1 rounded-full hover:bg-secondary',
+          head_row: 'flex',
+          head_cell: 'w-8 h-8 flex items-center justify-center text-xs text-foreground/70',
+          table: 'border-collapse w-full',
+          tbody: 'space-y-1',
+          row: 'flex w-full',
+          cell: 'p-0',
+          day: 'w-8 h-8 rounded-full text-sm hover:bg-secondary',
           day_selected: 'bg-primary text-white hover:bg-primary/90 focus:bg-primary/90',
-          day_today: 'text-accent',
+          day_today: 'text-accent font-bold',
+          day_outside: 'text-foreground/50',
+          day_disabled: 'text-foreground/40',
+          day_range_middle: 'bg-primary/10 text-primary',
+          day_range_start: 'rounded-r-none',
+          day_range_end: 'rounded-l-none',
         }}
       />
       {nights > 0 && (

@@ -1,4 +1,4 @@
-// src/app/(main)/stay/[listingId]/page.tsx
+// src/app/(main)/stay/[id]/page.tsx
 
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
@@ -8,14 +8,13 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import SaveButton from '@/components/common/SaveButton';
 import ContactSellerButton from '@/components/common/ContactSellerButton';
-import BookingRequest from '@/components/common/BookingRequest'; // Import the new component
+import BookingRequest from '@/components/common/BookingRequest'; // <-- This was likely missing
 
-export default async function StayDetailPage({ params }: { params: { listingId: string } }) {
+export default async function StayDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-
   const accommodation = await prisma.listing.findUnique({
     where: {
-      id: params.listingId,
+      id: params.id,
       category: 'accommodation',
     },
     include: {
@@ -58,11 +57,16 @@ export default async function StayDetailPage({ params }: { params: { listingId: 
           </div>
           <div className="md:col-span-1">
             <div className="sticky top-28 rounded-lg border border-secondary bg-background p-6 shadow-lg">
-              {/* THE FIX: The buttons are replaced with our new BookingRequest widget */}
-              <BookingRequest 
-                listingId={accommodation.id}
-                pricePerNight={accommodation.price}
-              />
+              <p className="text-2xl font-bold text-foreground">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(accommodation.price)}<span className="text-base font-normal text-foreground/70"> / night</span></p>
+              
+              {/* The BookingRequest component is now correctly included */}
+              <div className="mt-6">
+                <BookingRequest 
+                  listingId={accommodation.id}
+                  pricePerNight={accommodation.price}
+                />
+              </div>
+
               <div className="mt-4 border-t border-secondary pt-4">
                 <ContactSellerButton sellerId={accommodation.authorId} currentUserId={session?.user?.id} />
                 <SaveButton itemId={accommodation.id} itemType="listing" isInitiallySaved={isInitiallySaved} />

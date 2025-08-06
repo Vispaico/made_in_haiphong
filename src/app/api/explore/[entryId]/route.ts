@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 
 // GET handler to fetch a single explore entry for the edit page
 export async function GET(
-  req: Request,
+  _req: Request, // Use _req as it's not directly used
   { params }: { params: { entryId: string } }
 ) {
   const session = await getServerSession(authOptions);
@@ -17,13 +17,14 @@ export async function GET(
 
   try {
     const entry = await prisma.exploreEntry.findUnique({
-      where: { id: params.entryId },
+      where: { id: params.entryId }, // params is used here
     });
     if (!entry) {
       return new NextResponse('Not Found', { status: 404 });
     }
     return NextResponse.json(entry);
   } catch (error) {
+    console.error("Error fetching entry:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
@@ -39,29 +40,29 @@ export async function PATCH(
   }
 
   try {
-    const body = await req.json();
-    const { title, description, body: contentBody, category, imageUrls, address } = body;
+    const body = await req.json(); // req is used here
+    const { title, description, body: contentBody, category, imageUrls, address, latitude, longitude } = body;
 
     const updatedEntry = await prisma.exploreEntry.update({
-      where: { id: params.entryId },
+      where: { id: params.entryId }, // params is used here
       data: {
-        title,
-        description,
+        title, description,
         body: contentBody,
-        category,
-        imageUrls,
-        address,
+        category, imageUrls, address,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
       },
     });
     return NextResponse.json(updatedEntry);
   } catch (error) {
+    console.error("Error updating explore entry:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 
 // DELETE handler to remove an explore entry
 export async function DELETE(
-  req: Request,
+  _req: Request, // Use _req as it's not directly used
   { params }: { params: { entryId: string } }
 ) {
   const session = await getServerSession(authOptions);
@@ -71,10 +72,11 @@ export async function DELETE(
 
   try {
     await prisma.exploreEntry.delete({
-      where: { id: params.entryId },
+      where: { id: params.entryId }, // params is used here
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
+    console.error("Error deleting entry:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
