@@ -6,10 +6,14 @@ import ImageCarousel from '@/components/common/ImageCarousel';
 import Map from '@/components/common/Map';
 import { MapPin } from 'lucide-react';
 
+// THE FIX: Add Incremental Static Regeneration
+export const revalidate = 60;
+
 export default async function ExploreDetailPage({ params }: { params: { id: string } }) {
   const entry = await prisma.exploreEntry.findUnique({ where: { id: params.id } });
 
   if (!entry) notFound();
+  
   const location: [number, number] | null = entry.latitude && entry.longitude ? [entry.latitude, entry.longitude] : null;
 
   return (

@@ -1,12 +1,17 @@
 // src/app/(main)/community/[post_id]/page.tsx
 
-import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import CommentForm from '@/components/community/CommentForm';
 import LikeButton from '@/components/community/LikeButton';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import ImageCarousel from '@/components/common/ImageCarousel'; // Use the carousel
+import PostActions from '@/components/community/PostActions';
+import Image from 'next/image';
+
+// THE FIX: Add Incremental Static Regeneration
+export const revalidate = 60;
 
 export default async function PostDetailPage({ params }: { params: { post_id: string } }) {
   const session = await getServerSession(authOptions);
@@ -14,53 +19,34 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
   const post = await prisma.post.findUnique({
     where: { id: params.post_id },
     include: {
-      author: { select: { name: true, image: true } },
+      author: { select: { id: true, name: true, image: true } },
       comments: {
         orderBy: { createdAt: 'asc' },
-        include: {
-          author: { select: { name: true, image: true } },
-        },
+        include: { author: { select: { name: true, image: true } } },
       },
-      likes: {
-        where: { userId: session?.user?.id },
-        select: { userId: true },
-      },
-      _count: {
-        select: { likes: true },
-      },
+      likes: { where: { userId: session?.user?.id }, select: { userId: true } },
+      _count: { select: { likes: true } },
     },
   });
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   return (
     <div className="bg-background py-12">
       <div className="container mx-auto max-w-2xl px-4">
-        {/* Main Post Card */}
         <div className="rounded-xl border border-secondary bg-background p-6">
-          <div className="flex items-center gap-3">
-            <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
-            <span className="font-semibold text-foreground">{post.author.name}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Image src={post.author.image || '/images/avatar-default.png'} alt={post.author.name || 'User'} width={40} height={40} className="rounded-full"/>
+              <span className="font-semibold text-foreground">{post.author.name}</span>
+            </div>
+            {session?.user?.id === post.author.id && <PostActions postId={post.id} />}
           </div>
           <p className="mt-4 whitespace-pre-wrap text-lg text-foreground/90">{post.content}</p>
-
-          {/* THE FIX IS HERE: We now check the `imageUrls` array and map over it. */}
-          {post.imageUrls && post.imageUrls.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {post.imageUrls.map((url, index) => (
-                <div key={index} className="relative aspect-square overflow-hidden rounded-lg">
-                  <Image 
-                    src={url} 
-                    alt={`Post image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          
+          <div className="mt-4">
+            <ImageCarousel images={post.imageUrls} />
+          </div>
 
           <div className="mt-4 flex items-center gap-4 border-t border-secondary pt-4">
             <LikeButton
@@ -70,8 +56,6 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
             />
           </div>
         </div>
-
-        {/* Comments Section */}
         <div className="mt-10">
           <h2 className="font-heading text-2xl font-bold text-foreground">Comments ({post.comments.length})</h2>
           <CommentForm postId={post.id} />
@@ -85,9 +69,7 @@ export default async function PostDetailPage({ params }: { params: { post_id: st
                 </div>
               </div>
             ))}
-            {post.comments.length === 0 && (
-                <p className="text-foreground/60">No comments yet. Be the first!</p>
-            )}
+            {post.comments.length === 0 && (<p className="text-foreground/60">No comments yet. Be the first!</p>)}
           </div>
         </div>
       </div>
