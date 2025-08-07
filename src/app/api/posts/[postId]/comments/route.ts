@@ -1,7 +1,7 @@
 // src/app/api/posts/[postId]/comments/route.ts
 
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth'; // <-- THE CORRECTED IMPORT PATH
+import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -22,6 +22,15 @@ export async function POST(
       return new NextResponse('Bad Request: Invalid comment text', { status: 400 });
     }
 
+    const post = await prisma.post.findUnique({
+      where: { id: params.postId },
+      select: { authorId: true }
+    });
+
+    if (!post) {
+      return new NextResponse('Not Found: Post not found', { status: 404 });
+    }
+
     const newComment = await prisma.comment.create({
       data: {
         text: text,
@@ -29,6 +38,18 @@ export async function POST(
         postId: params.postId,
       },
     });
+
+    // Only create an activity if the commenter is not the post author
+    if (post.authorId !== session.user.id) {
+      await prisma.activity.create({
+        data: {
+          type: 'NEW_COMMENT',
+          userId: post.authorId,        // The notification is FOR the post author
+          initiatorId: session.user.id, // The notification is FROM the commenter
+          link: `/community/${params.postId}`,
+        },
+      });
+    }
 
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {

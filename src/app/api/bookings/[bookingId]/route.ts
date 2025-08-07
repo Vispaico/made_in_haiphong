@@ -21,12 +21,10 @@ export async function PATCH(
     const { bookingId } = params;
     const userId = session.user.id;
 
-    // 1. Validate the incoming status
     if (!status || !Object.values(BookingStatus).includes(status)) {
       return new NextResponse('Bad Request: Invalid status', { status: 400 });
     }
 
-    // 2. Find the booking and the associated listing
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
@@ -40,18 +38,28 @@ export async function PATCH(
       return new NextResponse('Not Found: Booking not found', { status: 404 });
     }
 
-    // 3. Security Check: Ensure the current user is the owner of the listing being booked
     if (booking.listing.authorId !== userId) {
       return new NextResponse('Forbidden: You do not own this listing', { status: 403 });
     }
 
-    // 4. Update the booking with the new status
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: status,
       },
     });
+
+    // Create an activity log for the user if the booking is confirmed or cancelled
+    if (updatedBooking.status === 'CONFIRMED' || updatedBooking.status === 'CANCELLED') {
+      await prisma.activity.create({
+        data: {
+          type: updatedBooking.status === 'CONFIRMED' ? 'BOOKING_CONFIRMED' : 'BOOKING_CANCELLED',
+          userId: booking.userId, // The notification is FOR the user who made the booking
+          initiatorId: userId,    // The notification is FROM the host
+          link: `/dashboard/bookings`,
+        },
+      });
+    }
 
     return NextResponse.json(updatedBooking);
   } catch (error) {

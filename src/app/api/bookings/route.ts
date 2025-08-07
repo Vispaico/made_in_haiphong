@@ -16,7 +16,6 @@ export async function POST(req: Request) {
     const { listingId, startDate, endDate } = await req.json();
     const userId = session.user.id;
 
-    // 1. Validate the input data
     if (!listingId || !startDate || !endDate) {
       return new NextResponse('Bad Request: Missing required fields', { status: 400 });
     }
@@ -28,7 +27,6 @@ export async function POST(req: Request) {
       return new NextResponse('Bad Request: End date must be after start date', { status: 400 });
     }
 
-    // 2. Fetch the listing to ensure it exists and the user is not booking their own listing
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -40,19 +38,24 @@ export async function POST(req: Request) {
     if (listing.authorId === userId) {
       return new NextResponse('Bad Request: You cannot book your own listing', { status: 400 });
     }
-
-    // 3. (Future enhancement) Check for booking conflicts:
-    //    Here, you would query existing bookings for this listing to see if the
-    //    requested dates overlap with any confirmed bookings. For now, we'll skip this.
     
-    // 4. Create the new booking with a PENDING status
     const newBooking = await prisma.booking.create({
       data: {
         startDate: start,
         endDate: end,
         userId: userId,
         listingId: listingId,
-        status: 'PENDING', // All new requests are pending approval by the host
+        status: 'PENDING',
+      },
+    });
+
+    // Create an activity log for the listing owner
+    await prisma.activity.create({
+      data: {
+        type: 'NEW_BOOKING_REQUEST',
+        userId: listing.authorId,      // The notification is FOR the listing owner
+        initiatorId: userId,          // The notification is FROM the user who booked
+        link: `/dashboard/bookings`,
       },
     });
 

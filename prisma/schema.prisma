@@ -26,6 +26,13 @@ enum SubscriptionStatus {
   PREMIUM
 }
 
+enum ActivityType {
+  NEW_BOOKING_REQUEST
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  NEW_COMMENT
+}
+
 // --- MODELS ---
 
 model User {
@@ -37,6 +44,7 @@ model User {
   image              String?
   isAdmin            Boolean            @default(false)
   subscriptionStatus SubscriptionStatus @default(FREE)
+  
   accounts           Account[]
   sessions           Session[]
   posts              Post[]
@@ -48,6 +56,10 @@ model User {
   conversations      Conversation[]     @relation("participants")
   sentMessages       Message[]          @relation("sender")
   bookings           Booking[]
+
+  // THE FIX: These relations are now correctly added to the single User model
+  activities         Activity[]
+  initiatedActivities Activity[] @relation("InitiatedActivities")
 }
 
 model Account {
@@ -212,4 +224,15 @@ model Announcement {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  type        ActivityType
+  createdAt   DateTime     @default(now())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  initiatorId String?
+  initiator   User?        @relation("InitiatedActivities", fields: [initiatorId], references: [id], onDelete: SetNull)
+  link        String?
 }
