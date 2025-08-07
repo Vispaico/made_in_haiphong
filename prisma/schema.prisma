@@ -10,37 +10,44 @@ datasource db {
 }
 
 // --- ENUMS ---
-// THE FIX: Add an enum for booking statuses
 enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
 }
 
+enum CategoryType {
+  EXPLORE
+  MARKETPLACE
+}
+
+enum SubscriptionStatus {
+  FREE
+  PREMIUM
+}
+
 // --- MODELS ---
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String?   @unique
-  hashedPassword  String?
-  emailVerified   DateTime?
-  image           String?
-  
-  // THE FIX IS HERE: Add the new isAdmin field
-  isAdmin         Boolean   @default(false)
-
-  accounts        Account[]
-  sessions        Session[]
-  posts           Post[]
-  comments        Comment[]
-  likes           Like[]
-  listings        Listing[]
-  savedPosts      SavedPost[]
-  savedListings   SavedListing[]
-  conversations   Conversation[] @relation("participants")
-  sentMessages    Message[]      @relation("sender")
-  bookings        Booking[]
+  id                 String             @id @default(cuid())
+  name               String?
+  email              String?            @unique
+  hashedPassword     String?
+  emailVerified      DateTime?
+  image              String?
+  isAdmin            Boolean            @default(false)
+  subscriptionStatus SubscriptionStatus @default(FREE)
+  accounts           Account[]
+  sessions           Session[]
+  posts              Post[]
+  comments           Comment[]
+  likes              Like[]
+  listings           Listing[]
+  savedPosts         SavedPost[]
+  savedListings      SavedListing[]
+  conversations      Conversation[]     @relation("participants")
+  sentMessages       Message[]          @relation("sender")
+  bookings           Booking[]
 }
 
 model Account {
@@ -49,12 +56,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([provider, providerAccountId])
@@ -117,11 +124,9 @@ model Listing {
   price       Float
   maxGuests   Int?
   bedrooms    Int?
-  
-  // Add new optional fields for location coordinates
   latitude    Float?
   longitude   Float?
-
+  isFeatured  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String
@@ -167,39 +172,26 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
-// New Booking model
 model Booking {
   id          String        @id @default(cuid())
   startDate   DateTime
   endDate     DateTime
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
-  
-  // Relation to the User who made the booking
   userId      String
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Relation to the Listing being booked
   listingId   String
   listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
 
-// --- ADD NEW ENUM ---
-enum CategoryType {
-  EXPLORE
-  MARKETPLACE
-}
-
-// --- ADD NEW MODEL ---
 model Category {
-  id          String       @id @default(cuid())
-  name        String       // e.g., "Food & Drink"
-  slug        String       @unique // e.g., "food-and-drink"
-  type        CategoryType // Is it for EXPLORE or MARKETPLACE?
-  createdAt   DateTime     @default(now())
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  type      CategoryType
+  createdAt DateTime     @default(now())
 }
 
-// ExploreEntry model: Represents a curated article or listing in the Explore section.
 model ExploreEntry {
   id          String   @id @default(cuid())
   title       String
@@ -208,23 +200,16 @@ model ExploreEntry {
   imageUrls   String[]
   category    String
   address     String?
- 
-  // THE FIX: Add new optional fields for location coordinates
   latitude    Float?
   longitude   Float?
-
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// Add this new model to the end of prisma/schema.prisma
-
-// Announcement model: Represents a site-wide announcement banner.
 model Announcement {
   id        String   @id @default(cuid())
   message   String   @db.Text
-  isActive  Boolean  @default(true) // Controls whether the banner is shown
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-

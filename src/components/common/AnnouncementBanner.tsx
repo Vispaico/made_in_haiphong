@@ -1,7 +1,8 @@
 // src/components/common/AnnouncementBanner.tsx
 
 import prisma from '@/lib/prisma';
-import { Megaphone, X } from 'lucide-react';
+// THE FIX: The unused 'X' icon has been removed.
+import { Megaphone } from 'lucide-react';
 
 // This is a Server Component, so it can fetch data directly.
 export default async function AnnouncementBanner() {
@@ -19,9 +20,6 @@ export default async function AnnouncementBanner() {
   if (!announcement) {
     return null;
   }
-
-  // NOTE: In a real app, you would add a client-side component with a cookie
-  // to allow users to permanently dismiss the banner. For now, it will always show.
 
   return (
     <div className="relative bg-primary px-4 py-3 text-white">

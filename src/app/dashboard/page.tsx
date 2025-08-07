@@ -4,21 +4,24 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-// THE FIX: The unused 'Bell' icon has been removed and 'Heart' has been added.
-import { MessageSquare, Star, Heart } from 'lucide-react';
+import { MessageSquare, Star, Heart, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-// Helper component for the summary cards to reduce repetition
-function SummaryCard({ icon, title, value, href }: { icon: React.ReactNode; title: string; value: number; href: string }) {
+// THE FIX: The SummaryCard component is upgraded for better UX
+function SummaryCard({ icon, title, value, href, cta }: { icon: React.ReactNode; title: string; value: number; href: string; cta: string }) {
   return (
-    <Link href={href} className="block rounded-xl border border-secondary bg-background p-6 transition-transform hover:-translate-y-1">
-      <div className="flex items-center gap-4">
-        {icon}
-        <div>
-          <p className="text-sm text-foreground/70">{title}</p>
-          <p className="text-2xl font-bold text-foreground">{value}</p>
+    <Link href={href} className="group block rounded-xl border border-secondary bg-background p-6 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-md hover:-translate-y-1">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-4">
+          {icon}
+          <div>
+            <p className="text-sm text-foreground/70">{title}</p>
+            <p className="text-3xl font-bold text-foreground">{value}</p>
+          </div>
         </div>
+        <ArrowRight className="h-5 w-5 text-foreground/30 transition-transform group-hover:translate-x-1" />
       </div>
+      <p className="mt-4 text-xs text-primary/80 font-semibold group-hover:text-primary">{cta}</p>
     </Link>
   );
 }
@@ -33,9 +36,7 @@ export default async function DashboardPage() {
   const userId = session.user.id;
 
   const conversationsCount = await prisma.conversation.count({
-    where: {
-      participants: { some: { id: userId } },
-    },
+    where: { participants: { some: { id: userId } } },
   });
 
   const pendingBookingsCount = await prisma.booking.count({
@@ -61,18 +62,21 @@ export default async function DashboardPage() {
           href="/dashboard/messages"
           title="Total Conversations" 
           value={conversationsCount}
+          cta="View all messages"
           icon={<div className="rounded-full bg-primary/10 p-3 text-primary"><MessageSquare className="h-6 w-6" /></div>}
         />
         <SummaryCard 
           href="/dashboard/bookings"
           title="Pending Booking Requests" 
           value={pendingBookingsCount}
+          cta="Manage your bookings"
           icon={<div className="rounded-full bg-accent/10 p-3 text-accent"><Star className="h-6 w-6" /></div>}
         />
         <SummaryCard 
           href="/dashboard/saved"
           title="Total Saved Items" 
           value={totalSavedCount}
+          cta="View your saved items"
           icon={<div className="rounded-full bg-yellow-500/10 p-3 text-yellow-500"><Heart className="h-6 w-6" /></div>}
         />
       </div>

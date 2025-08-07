@@ -2,14 +2,12 @@
 
 import prisma from '@/lib/prisma';
 import Image from 'next/image';
-import { BadgeCheck, ShieldAlert } from 'lucide-react';
-import AdminUserActions from '@/components/admin/AdminUserActions'; // Import the new component
+import { BadgeCheck, ShieldAlert, Star } from 'lucide-react';
+import AdminUserActions from '@/components/admin/AdminUserActions';
 
 export default async function AdminManageUsersPage() {
   const allUsers = await prisma.user.findMany({
-    orderBy: {
-      name: 'asc',
-    },
+    orderBy: { name: 'asc' },
   });
 
   return (
@@ -22,9 +20,9 @@ export default async function AdminManageUsersPage() {
           <thead className="bg-secondary">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">User</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Email</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Subscription</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Role</th>
-              <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+              <th scope="col" className="relative px-6 py-3 text-right"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-secondary">
@@ -33,11 +31,21 @@ export default async function AdminManageUsersPage() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <Image src={user.image || '/images/avatar-default.png'} alt={user.name || 'User'} width={40} height={40} className="rounded-full" />
-                    <div className="font-semibold">{user.name}</div>
+                    <div>
+                      <div className="font-semibold">{user.name}</div>
+                      <div className="text-sm text-foreground/70">{user.email}</div>
+                    </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground/70">
-                  {user.email}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.subscriptionStatus === 'PREMIUM' ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-1 text-xs font-semibold text-yellow-600">
+                      <Star className="h-4 w-4" />
+                      Premium
+                    </span>
+                  ) : (
+                    <span className="text-xs text-foreground/70">Free</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.isAdmin ? (
@@ -53,8 +61,7 @@ export default async function AdminManageUsersPage() {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {/* THE FIX: Render the action buttons for the user */}
-                  <AdminUserActions user={{ id: user.id, isAdmin: user.isAdmin }} />
+                  <AdminUserActions user={user} />
                 </td>
               </tr>
             ))}

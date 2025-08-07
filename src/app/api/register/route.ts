@@ -4,20 +4,21 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
-// Regular expression to check for password strength
-const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+// THE FIX: This regex is updated to include the special character requirement, matching the form's helper text.
+const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    // THE FIX: We now correctly expect 'name' from the request body, in addition to email and password.
+    const { name, email, password } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ message: 'Missing email or password' }, { status: 400 });
+    if (!name || !email || !password) {
+      return NextResponse.json({ message: 'Missing name, email, or password' }, { status: 400 });
     }
 
     if (!passwordStrengthRegex.test(password)) {
       return NextResponse.json(
-        { message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.' },
+        { message: 'Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.' },
         { status: 400 }
       );
     }
@@ -33,11 +34,10 @@ export async function POST(req: Request) {
       data: {
         email,
         hashedPassword,
-        name: email.split('@')[0], 
+        name, // Use the name provided from the form.
       },
     });
 
-    // The API's only job is to create the user and report success.
     return NextResponse.json(newUser, { status: 201 });
 
   } catch (error) {

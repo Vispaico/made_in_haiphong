@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { 
   LayoutDashboard, User, MessageSquare, ShoppingBag, 
-  Heart, Star, Settings, ShipWheel, PlusCircle
+  Heart, Star, Settings, ShipWheel, PlusCircle, Zap
 } from 'lucide-react';
 import LogoutButton from '@/components/dashboard/LogoutButton';
-import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Import the new header
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 const dashboardNavLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,8 +25,6 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-secondary">
-      {/* --- Desktop Sidebar --- */}
-      {/* This remains unchanged, but is now explicitly for desktop */}
       <aside className="hidden w-64 flex-col border-r border-secondary bg-background p-4 md:flex">
         <div className="mb-8">
           <Link href="/" className="flex items-center gap-2 text-foreground">
@@ -57,18 +55,22 @@ export default function DashboardLayout({
             </Link>
           ))}
         </nav>
-        <div>
+
+        {/* THE FIX: Added a new, distinct "Upgrade" link at the bottom */}
+        <div className="mt-auto flex flex-col space-y-2 border-t border-secondary pt-4">
+          <Link 
+            href="/dashboard/upgrade"
+            className="flex items-center gap-3 rounded-md bg-yellow-500/10 px-3 py-2 text-yellow-600 transition-colors hover:bg-yellow-500/20"
+          >
+            <Zap className="h-5 w-5" />
+            <span className="font-semibold">Upgrade to Premium</span>
+          </Link>
           <LogoutButton />
         </div>
       </aside>
 
-      {/* --- Main Content Area --- */}
-      {/* This is now wrapped in a flex-col div to accommodate the mobile header */}
       <div className="flex flex-1 flex-col">
-        {/* THE FIX IS HERE: Add the mobile-only DashboardHeader */}
         <DashboardHeader />
-        
-        {/* The main content now correctly fills the remaining space */}
         <main className="flex-grow p-4 md:p-8">
           {children}
         </main>

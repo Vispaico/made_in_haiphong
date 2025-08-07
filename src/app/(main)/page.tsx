@@ -7,10 +7,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 
+// THE FIX IS HERE: The hrefs now point to valid category pages, removing the 404 errors.
 const sampleListings = [
-  { href: "/explore/food-and-drink/banh-da-cua", title: "Bánh đa cua", description: "Famous crab noodle soup.", imageUrls: ["/images/food-1.jpg"] },
-  { href: "/stay/seaside-villa", title: "Seaside Villa", description: "Stunning view of Lan Ha Bay.", imageUrls: ["/images/stay-1.jpg"] },
-  { href: "/marketplace/rentals/honda-wave", title: "Honda Wave Bike", description: "Reliable and easy to ride.", imageUrls: ["/images/rent-1.jpg"] },
+  { href: "/explore/food-and-drink", title: "Bánh đa cua", description: "Famous crab noodle soup.", imageUrls: ["/images/food-1.jpg"] },
+  { href: "/stay", title: "Seaside Villa", description: "Stunning view of Lan Ha Bay.", imageUrls: ["/images/stay-1.jpg"] },
+  { href: "/marketplace/rentals", title: "Honda Wave Bike", description: "Reliable and easy to ride.", imageUrls: ["/images/rent-1.jpg"] },
 ];
 
 const categoryLinks = [
@@ -26,15 +27,14 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       <section className="relative flex h-[60vh] w-full items-center justify-center">
-        {/* THE FIX IS HERE: Added the `priority` prop to the hero image */}
         <Image 
-          src="https://images.unsplash.com/photo-1688193662553-dd1ed64a77fd?q=80&w=2531&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+          src="https://images.unsplash.com/photo-1579867526142-9904a8b71398?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
           alt="Haiphong Cityscape" 
           fill 
           className="object-cover" 
           priority 
         />
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 flex flex-col items-center p-4 text-center text-white">
           <h1 className="font-heading text-4xl font-bold md:text-6xl">Haiphong in Your Pocket</h1>
           <p className="mt-2 max-w-2xl text-lg md:text-xl">Discover, Shop, Connect.</p>
@@ -46,8 +46,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      
-      {/* ... the rest of the page remains the same ... */}
 
       <section className="container mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
