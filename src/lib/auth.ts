@@ -1,12 +1,10 @@
-// src/lib/auth.ts
-
 import { type NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { User } from '@prisma/client'; // Import the User type from Prisma
+import { User } from '@prisma/client';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error('Missing Google OAuth environment variables');
@@ -38,9 +36,26 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  // In src/lib/auth.ts, replace the entire `callbacks` block
 
-callbacks: {
+  // THE FIX IS HERE: This is the definitive, production-ready cookie configuration.
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        // This is the crucial part. We conditionally set the domain.
+        // For production, the cookie is valid for `.made-in-haiphong.com`,
+        // which includes `www.made-in-haiphong.com`.
+        // For development, we don't set a domain.
+        domain: process.env.NODE_ENV === 'production' ? '.made-in-haiphong.com' : undefined,
+        secure: true
+      }
+    }
+  },
+
+  callbacks: {
     async jwt({ token, user }) {
       if (user) {
         const dbUser = user as User;
@@ -56,7 +71,7 @@ callbacks: {
       }
       return session;
     },
-},
+  },
   pages: {
     signIn: '/login',
     error: '/login', 
