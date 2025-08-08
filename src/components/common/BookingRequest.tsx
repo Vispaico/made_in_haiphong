@@ -1,7 +1,7 @@
 // src/components/common/BookingRequest.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Import useEffect
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { DayPicker, type DateRange } from 'react-day-picker';
@@ -20,6 +20,30 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
   const [range, setRange] = useState<DateRange | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // THE FIX: Add state to hold the already booked dates
+  const [bookedDates, setBookedDates] = useState<DateRange[]>([]);
+
+  // THE FIX: Fetch the booked dates from our new API when the component mounts
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const response = await fetch(`/api/listings/${listingId}/bookings`);
+        if (response.ok) {
+          const dates: { from: string; to: string }[] = await response.json();
+          // Convert the string dates from the API into Date objects
+          const dateRanges = dates.map(range => ({
+            from: new Date(range.from),
+            to: new Date(range.to),
+          }));
+          setBookedDates(dateRanges);
+        }
+      } catch (error) {
+        console.error("Failed to fetch booked dates:", error);
+      }
+    };
+    fetchBookedDates();
+  }, [listingId]);
 
   const handleDateSelect = (selectedRange: DateRange | undefined) => {
     setRange(selectedRange);
@@ -59,38 +83,29 @@ export default function BookingRequest({ listingId, pricePerNight }: BookingRequ
     }
     setIsSubmitting(false);
   };
+  
+  // Combine past dates and already booked dates into a single disabled array
+  const disabledDays = [{ before: new Date() }, ...bookedDates];
 
   return (
     <div className="space-y-4">
-      <DayPicker
-        mode="range"
-        selected={range}
-        onSelect={handleDateSelect}
-        numberOfMonths={1}
-        disabled={{ before: new Date() }}
-        // THE FIX: We are now using the `classNames` prop to apply Tailwind classes directly.
-        // This is the correct and robust way to style the component.
-        classNames={{
-          root: 'border border-secondary rounded-lg bg-background p-3',
-          caption: 'flex items-center justify-between px-1 mb-2',
-          caption_label: 'font-heading text-base font-bold',
-          nav_button: 'h-7 w-7 p-1 rounded-full hover:bg-secondary',
-          head_row: 'flex',
-          head_cell: 'w-8 h-8 flex items-center justify-center text-xs text-foreground/70',
-          table: 'border-collapse w-full',
-          tbody: 'space-y-1',
-          row: 'flex w-full',
-          cell: 'p-0',
-          day: 'w-8 h-8 rounded-full text-sm hover:bg-secondary',
-          day_selected: 'bg-primary text-white hover:bg-primary/90 focus:bg-primary/90',
-          day_today: 'text-accent font-bold',
-          day_outside: 'text-foreground/50',
-          day_disabled: 'text-foreground/40',
-          day_range_middle: 'bg-primary/10 text-primary',
-          day_range_start: 'rounded-r-none',
-          day_range_end: 'rounded-l-none',
-        }}
-      />
+      <div className="calendar-container">
+        <style>{`.calendar-container .rdp { --rdp-cell-size: 36px; width: auto; }`}</style>
+        <DayPicker
+          mode="range"
+          selected={range}
+          onSelect={handleDateSelect}
+          numberOfMonths={1}
+          // THE FIX: Pass the combined array of disabled dates to the calendar
+          disabled={disabledDays}
+          classNames={{
+            day_selected: 'bg-primary text-white hover:bg-primary/90 focus:bg-primary/90',
+            day_today: 'text-accent',
+            day_disabled: 'line-through text-foreground/40', // Style for disabled dates
+          }}
+        />
+      </div>
+
       {nights > 0 && (
         <div className="p-4 rounded-lg bg-secondary space-y-2">
           <div className="flex justify-between">
