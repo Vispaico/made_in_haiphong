@@ -3,9 +3,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // THE FIX: Import the Next.js Image component
 import { useSession, signOut } from 'next-auth/react';
-// THE FIX: Import the MessageSquare icon
-import { ShipWheel, Search, X, Menu, UserCircle, MessageSquare } from 'lucide-react';
+// THE FIX: ShipWheel is no longer needed
+import { Search, X, Menu, UserCircle, MessageSquare } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -28,9 +29,15 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-secondary bg-background/90 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           
-          <Link href="/" className="flex flex-shrink-0 items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
-            <ShipWheel className="h-6 w-6 text-primary" />
-            <span className="font-heading font-bold text-foreground">Made in Haiphong</span>
+          {/* THE FIX: The text and icon are replaced with your new SVG logo */}
+          <Link href="/" className="flex flex-shrink-0 items-center" onClick={() => setIsMenuOpen(false)}>
+            <Image
+              src="/MadeInHaiphong_logo.svg"
+              alt="Made in Haiphong Logo"
+              width={140} // You can adjust this width
+              height={40}  // And this height to fit your logo's aspect ratio
+              className="h-10 w-auto" // h-10 ensures it fits the header height, w-auto maintains aspect ratio
+            />
           </Link>
 
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
@@ -44,7 +51,6 @@ export default function Header() {
           <div className="hidden items-center space-x-2 md:flex">
             {status === 'authenticated' ? (
               <>
-                {/* THE FIX: Add the new Messages icon link */}
                 <Link 
                   href="/dashboard/messages" 
                   className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground" 
@@ -81,7 +87,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu Dropdown (no changes needed here) */}
       {isMenuOpen && (
         <div className="fixed top-16 left-0 z-40 w-full border-b border-secondary bg-background shadow-md md:hidden">
           <nav className="flex flex-col space-y-1 p-4">
@@ -96,7 +102,6 @@ export default function Header() {
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
                     My Dashboard
                   </Link>
-                  {/* THE FIX: Add a Messages link to the mobile menu as well */}
                   <Link href="/dashboard/messages" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
                     Messages
                   </Link>
