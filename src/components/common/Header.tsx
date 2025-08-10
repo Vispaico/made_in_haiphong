@@ -32,7 +32,7 @@ export default function Header() {
           {/* THE FIX: The text and icon are replaced with your new SVG logo */}
           <Link href="/" className="flex flex-shrink-0 items-center" onClick={() => setIsMenuOpen(false)}>
             <Image
-              src="/MadeInHaiphong_logo.png"
+              src="/MadeInHaiphong_logo01.png"
               alt="Made in Haiphong Logo"
               width={140} // You can adjust this width
               height={40}  // And this height to fit your logo's aspect ratio
