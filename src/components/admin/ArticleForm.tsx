@@ -48,7 +48,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     }
   }, [title, setValue]);
 
-  const modules = useMemo(() => ({
+  const modules = (quill: any) => ({
     toolbar: {
       container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -57,8 +57,37 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         ['link', 'image', 'video'],
         ['clean']
       ],
+      handlers: {
+        image: () => {
+          const input = document.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+          input.click();
+
+          input.onchange = async () => {
+            if (input.files) {
+              const file = input.files[0];
+              const formData = new FormData();
+              formData.append('file', file);
+
+              const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (response.ok) {
+                const { url } = await response.json();
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', url);
+              } else {
+                alert('Failed to upload image.');
+              }
+            }
+          };
+        },
+      },
     },
-  }), []);
+  });
 
   const onSubmit = async (data: ArticleFormData) => {
     setIsSubmitting(true);
@@ -115,51 +144,15 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               name="content"
               control={control}
               rules={{ required: 'Content is required' }}
-              render={({ field }) => {
-                const quillRef = (el: any) => {
-                  if (el) {
-                    const quill = el.getEditor();
-                    quill.getModule('toolbar').addHandler('image', () => {
-                      const input = document.createElement('input');
-                      input.setAttribute('type', 'file');
-                      input.setAttribute('accept', 'image/*');
-                      input.click();
-
-                      input.onchange = async () => {
-                        if (input.files) {
-                          const file = input.files[0];
-                          const formData = new FormData();
-                          formData.append('file', file);
-
-                          const response = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData,
-                          });
-
-                          if (response.ok) {
-                            const { url } = await response.json();
-                            const range = quill.getSelection(true);
-                            quill.insertEmbed(range.index, 'image', url);
-                          } else {
-                            alert('Failed to upload image.');
-                          }
-                        }
-                      };
-                    });
-                  }
-                };
-
-                return (
-                  <ReactQuill
-                    ref={quillRef}
-                    theme="snow"
-                    value={field.value}
-                    onChange={field.onChange}
-                    modules={modules}
-                    className="mt-1 bg-background"
-                  />
-                )
-              }}
+              render={({ field }) => (
+                <ReactQuill
+                  theme="snow"
+                  value={field.value}
+                  onChange={field.onChange}
+                  modules={modules(field.ref)}
+                  className="mt-1 bg-background"
+                />
+              )}
             />
             {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content.message}</p>}
           </div>
