@@ -1,7 +1,7 @@
 // src/components/admin/ArticleForm.tsx
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Article } from '@prisma/client';
 import { useForm, Controller } from 'react-hook-form';
@@ -39,7 +39,6 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const quillRef = useRef<any>(null);
 
   const title = watch('title');
 
@@ -48,37 +47,6 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       setValue('slug', slugify(title, { lower: true, strict: true }));
     }
   }, [title, setValue]);
-
-  const imageHandler = () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-
-    input.onchange = async () => {
-      if (input.files) {
-        const file = input.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const { url } = await response.json();
-          const quill = quillRef.current?.getEditor();
-          if (quill) {
-            const range = quill.getSelection(true);
-            quill.insertEmbed(range.index, 'image', url);
-          }
-        } else {
-          alert('Failed to upload image.');
-        }
-      }
-    };
-  };
 
   const modules = useMemo(() => ({
     toolbar: {
@@ -89,9 +57,6 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         ['link', 'image', 'video'],
         ['clean']
       ],
-      handlers: {
-        image: imageHandler,
-      },
     },
   }), []);
 
@@ -150,16 +115,51 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               name="content"
               control={control}
               rules={{ required: 'Content is required' }}
-              render={({ field }) => (
-                <ReactQuill
-                  forwardedRef={quillRef}
-                  theme="snow"
-                  value={field.value}
-                  onChange={field.onChange}
-                  modules={modules}
-                  className="mt-1 bg-background"
-                />
-              )}
+              render={({ field }) => {
+                const quillRef = (el: any) => {
+                  if (el) {
+                    const quill = el.getEditor();
+                    quill.getModule('toolbar').addHandler('image', () => {
+                      const input = document.createElement('input');
+                      input.setAttribute('type', 'file');
+                      input.setAttribute('accept', 'image/*');
+                      input.click();
+
+                      input.onchange = async () => {
+                        if (input.files) {
+                          const file = input.files[0];
+                          const formData = new FormData();
+                          formData.append('file', file);
+
+                          const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData,
+                          });
+
+                          if (response.ok) {
+                            const { url } = await response.json();
+                            const range = quill.getSelection(true);
+                            quill.insertEmbed(range.index, 'image', url);
+                          } else {
+                            alert('Failed to upload image.');
+                          }
+                        }
+                      };
+                    });
+                  }
+                };
+
+                return (
+                  <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    value={field.value}
+                    onChange={field.onChange}
+                    modules={modules}
+                    className="mt-1 bg-background"
+                  />
+                )
+              }}
             />
             {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content.message}</p>}
           </div>
