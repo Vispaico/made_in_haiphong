@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 // THE FIX: Import the 'LayoutList' icon for our new link
-import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList } from 'lucide-react';
+import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList, Newspaper } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
 
 // THE FIX: Add the new "Manage Categories" link to the navigation array
@@ -11,6 +11,7 @@ const adminNavLinks = [
   { href: '/admin/users', label: 'Manage Users', icon: Users },
   { href: '/admin/explore', label: 'Manage Explore', icon: Compass },
   { href: '/admin/categories', label: 'Manage Categories', icon: LayoutList }, // This is the new link
+  { href: '/admin/articles', label: 'Manage Articles', icon: Newspaper },
   { href: '/admin/settings', label: 'Admin Settings', icon: Settings },
 ];
 

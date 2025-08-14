@@ -4,19 +4,15 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Clear existing posts to avoid duplicates when re-seeding
-  await prisma.post.deleteMany({});
-  
-  let user = await prisma.user.findFirst();
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        name: 'Test User',
-        email: 'test@example.com',
-      },
-    });
-  }
-  
+  const user = await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {},
+    create: {
+      name: 'Test User',
+      email: 'test@example.com',
+    },
+  });
+
   console.log(`Seeding posts for user: ${user.name} (${user.id})`);
 
   // Create sample posts

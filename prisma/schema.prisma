@@ -56,6 +56,7 @@ model User {
   conversations      Conversation[]     @relation("participants")
   sentMessages       Message[]          @relation("sender")
   bookings           Booking[]
+  articles           Article[]
 
   // THE FIX: These relations are now correctly added to the single User model
   activities         Activity[]
@@ -235,4 +236,19 @@ model Activity {
   initiatorId String?
   initiator   User?        @relation("InitiatedActivities", fields: [initiatorId], references: [id], onDelete: SetNull)
   link        String?
+}
+
+model Article {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  featuredImage   String?
+  content         String   @db.Text
+  metaTitle       String?
+  metaDescription String?
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
