@@ -39,7 +39,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const quillRef = useRef<any>(null);
+  const quillRef = useRef<ReactQuill>(null);
 
   const title = watch('title');
 
@@ -152,7 +152,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               rules={{ required: 'Content is required' }}
               render={({ field }) => (
                 <ReactQuill
-                  ref={quillRef}
+                  forwardedRef={quillRef}
                   theme="snow"
                   value={field.value}
                   onChange={field.onChange}
