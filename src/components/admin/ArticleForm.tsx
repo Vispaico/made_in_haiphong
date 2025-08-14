@@ -39,7 +39,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
 
   const title = watch('title');
 
