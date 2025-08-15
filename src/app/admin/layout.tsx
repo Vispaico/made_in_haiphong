@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList, Newspaper } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
-import Footer from '@/components/common/Footer';
 
 const adminNavLinks = [
   { href: '/admin', label: 'Manage Listings', icon: LayoutGrid },
@@ -48,7 +47,6 @@ export default function AdminLayout({
         <main className="flex-grow p-4 md:p-8">
           {children}
         </main>
-        <Footer />
       </div>
     </div>
   );
