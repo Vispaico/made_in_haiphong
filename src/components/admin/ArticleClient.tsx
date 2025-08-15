@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Article } from '@prisma/client';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/Button';
 
 export default function ArticleClient({ initialArticles }: { initialArticles: Article[] }) {
   const router = useRouter();
@@ -26,10 +27,10 @@ export default function ArticleClient({ initialArticles }: { initialArticles: Ar
   return (
     <>
       <div className="flex justify-end mb-4">
-        <button onClick={() => router.push('/admin/articles/new')} className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-bold text-white shadow-md">
-          <PlusCircle className="h-5 w-5" />
-          <span>Create Article</span>
-        </button>
+        <Button onClick={() => router.push('/admin/articles/new')}>
+          <PlusCircle className="mr-2 h-5 w-5" />
+          Create Article
+        </Button>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-secondary bg-background">
@@ -60,8 +61,12 @@ export default function ArticleClient({ initialArticles }: { initialArticles: Ar
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground/70">{format(new Date(article.createdAt), 'MMM d, yyyy')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => router.push(`/admin/articles/${article.id}`)} className="text-primary hover:underline"><Edit className="h-4 w-4" /></button>
-                    <button onClick={() => handleDelete(article.id)} className="text-red-500 hover:underline"><Trash2 className="h-4 w-4" /></button>
+                    <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/articles/${article.id}`)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(article.id)}>
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
                   </div>
                 </td>
               </tr>

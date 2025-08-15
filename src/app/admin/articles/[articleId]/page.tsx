@@ -1,26 +1,29 @@
 // src/app/admin/articles/[articleId]/page.tsx
-import prisma from '@/lib/prisma';
+import { notFound } from 'next/navigation';
+import db from '@/lib/prisma';
 import ArticleForm from '@/components/admin/ArticleForm';
 
-async function getArticle(articleId: string) {
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
-  });
-  return article;
+interface EditArticlePageProps {
+  params: {
+    articleId: string;
+  };
 }
 
-export default async function AdminEditArticlePage({ params }: { params: { articleId: string } }) {
-  const article = await getArticle(params.articleId);
+export default async function EditArticlePage({ params }: EditArticlePageProps) {
+  const article = await db.article.findUnique({
+    where: {
+      id: params.articleId,
+    },
+  });
 
   if (!article) {
-    return <div>Article not found.</div>;
+    notFound();
   }
 
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-foreground">Edit Article</h1>
-      <p className="mt-2 text-lg text-foreground/70">Modify the details of the article.</p>
-      
+      <p className="mt-2 text-lg text-foreground/70">Update the details of your article below.</p>
       <div className="mt-8">
         <ArticleForm article={article} />
       </div>

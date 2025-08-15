@@ -1,11 +1,5 @@
 // src/components/admin/ArticleForm.tsx
-'use client';
-
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Article } from '@prisma/client';
-import { useForm, Controller } from 'react-hook-form';
-import dynamic from 'next/dynamic';
+import { Button } from '@/components/ui/Button';
 import 'react-quill/dist/quill.snow.css';
 import slugify from 'slugify';
 
@@ -86,6 +80,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         ['link', 'image', 'video'],
         ['clean']
@@ -220,20 +215,19 @@ export default function ArticleForm({ article }: ArticleFormProps) {
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-4 pt-4">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => router.back()}
-          className="rounded-lg bg-secondary px-6 py-2 font-bold text-foreground"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-accent px-6 py-2 font-bold text-white disabled:opacity-50"
         >
           {isSubmitting ? 'Saving...' : 'Save Post'}
-        </button>
+        </Button>
       </div>
     </form>
   );
