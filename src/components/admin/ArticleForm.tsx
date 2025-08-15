@@ -1,7 +1,7 @@
 // src/components/admin/ArticleForm.tsx
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Article } from '@prisma/client';
 import { useForm, Controller } from 'react-hook-form';
@@ -48,7 +48,39 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     }
   }, [title, setValue]);
 
-  const modules = (quill: any) => ({
+  const quillRef = useRef<any>(null);
+
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      if (input.files) {
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const { url } = await response.json();
+          if (quillRef.current) {
+            const range = quillRef.current.getEditor().getSelection(true);
+            quillRef.current.getEditor().insertEmbed(range.index, 'image', url);
+          }
+        } else {
+          alert('Failed to upload image.');
+        }
+      }
+    };
+  };
+
+  const modules = useMemo(() => ({
     toolbar: {
       container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -58,36 +90,10 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         ['clean']
       ],
       handlers: {
-        image: () => {
-          const input = document.createElement('input');
-          input.setAttribute('type', 'file');
-          input.setAttribute('accept', 'image/*');
-          input.click();
-
-          input.onchange = async () => {
-            if (input.files) {
-              const file = input.files[0];
-              const formData = new FormData();
-              formData.append('file', file);
-
-              const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-              });
-
-              if (response.ok) {
-                const { url } = await response.json();
-                const range = quill.getSelection(true);
-                quill.insertEmbed(range.index, 'image', url);
-              } else {
-                alert('Failed to upload image.');
-              }
-            }
-          };
-        },
+        image: imageHandler,
       },
     },
-  });
+  }), []);
 
   const onSubmit = async (data: ArticleFormData) => {
     setIsSubmitting(true);
@@ -146,10 +152,11 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               rules={{ required: 'Content is required' }}
               render={({ field }) => (
                 <ReactQuill
+                  ref={quillRef}
                   theme="snow"
                   value={field.value}
                   onChange={field.onChange}
-                  modules={modules(field.ref)}
+                  modules={modules}
                   className="mt-1 bg-background"
                 />
               )}
