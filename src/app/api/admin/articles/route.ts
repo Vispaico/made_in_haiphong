@@ -32,6 +32,9 @@ export async function POST(req: Request) {
   try {
     const { title, slug, featuredImage, content, metaTitle, metaDescription, published } = await req.json();
 
+    console.log("Session:", session);
+    console.log("Request body:", { title, slug, featuredImage, content, metaTitle, metaDescription, published });
+
     if (!title || !slug || !content) {
       return new NextResponse('Bad Request: Title, slug, and content are required', { status: 400 });
     }
@@ -48,6 +51,8 @@ export async function POST(req: Request) {
         authorId: session.user.id,
       },
     });
+
+    console.log("New article created:", newArticle);
 
     return NextResponse.json(newArticle, { status: 201 });
   } catch (error) {
