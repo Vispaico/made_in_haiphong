@@ -12,7 +12,9 @@ export default function ArticleClient({ initialArticles }: { initialArticles: Ar
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>(initialArticles);
 
-  const handleDelete = async (articleId: string) => {
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>, articleId: string) => {
+    e.preventDefault();
+    console.log('handleDelete called for articleId:', articleId);
     if (window.confirm('Are you sure you want to delete this article?')) {
       const response = await fetch(`/api/admin/articles/${articleId}`, { method: 'DELETE' });
       if (response.ok) {
@@ -64,7 +66,7 @@ export default function ArticleClient({ initialArticles }: { initialArticles: Ar
                     <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/articles/${article.id}`)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(article.id)}>
+                    <Button variant="ghost" size="icon" onClick={(e) => handleDelete(e, article.id)}>
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
