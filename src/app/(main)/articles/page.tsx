@@ -34,8 +34,8 @@ export default async function ArticlesPage() {
                   </div>
                 )}
                 <div className="p-6">
-                  <h2 className="font-heading text-xl font-bold text-foreground mb-2">{article.title}</h2>
-                  <p className="text-foreground/70 line-clamp-3">{article.metaDescription}</p>
+                  <h2 className="font-heading text-xl font-bold text-gray-900 mb-2">{article.title}</h2>
+                  <p className="text-gray-600 line-clamp-3">{article.metaDescription}</p>
                 </div>
               </div>
             </Link>
