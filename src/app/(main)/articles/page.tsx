@@ -15,7 +15,7 @@ export default async function ArticlesPage() {
   const articles = await getPublishedArticles();
 
   return (
-    <div className="bg-secondary py-12">
+    <div className="bg-white py-12">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="font-heading text-4xl font-bold text-foreground">Articles</h1>

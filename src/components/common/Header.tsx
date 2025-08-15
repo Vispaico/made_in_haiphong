@@ -17,6 +17,7 @@ export default function Header() {
     { href: '/marketplace', label: 'Marketplace' },
     { href: '/stay', label: 'Stay' },
     { href: '/community', label: 'Community Feed' },
+    { href: '/articles', label: 'Articles' },
   ];
 
   const handleLogout = () => {
