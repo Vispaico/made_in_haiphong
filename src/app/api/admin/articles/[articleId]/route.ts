@@ -4,13 +4,8 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-// GET handler to fetch a single article
+// GET handler to fetch a single article by ID
 export async function GET(req: Request, { params }: { params: { articleId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.isAdmin) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
     const article = await prisma.article.findUnique({
       where: { id: params.articleId },
@@ -20,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { articleId: strin
     }
     return NextResponse.json(article);
   } catch (error) {
-    console.error(`Error fetching article ${params.articleId}:`, error);
+    console.error("Error fetching article:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
@@ -54,7 +49,7 @@ export async function PUT(req: Request, { params }: { params: { articleId: strin
 
     return NextResponse.json(updatedArticle);
   } catch (error) {
-    console.error(`Error updating article ${params.articleId}:`, error);
+    console.error("Error updating article:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
@@ -72,7 +67,7 @@ export async function DELETE(req: Request, { params }: { params: { articleId: st
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error(`Error deleting article ${params.articleId}:`, error);
+    console.error("Error deleting article:", error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
