@@ -70,8 +70,9 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         if (response.ok) {
           const { url } = await response.json();
           if (quillRef.current) {
-            const range = quillRef.current.getEditor().getSelection(true);
-            quillRef.current.getEditor().insertEmbed(range.index, 'image', url);
+            const quill = quillRef.current.getEditor();
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', url);
           }
         } else {
           alert('Failed to upload image.');
@@ -156,6 +157,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                   theme="snow"
                   value={field.value}
                   onChange={field.onChange}
+                  onBlur={field.onBlur}
                   modules={modules}
                   className="mt-1 bg-background"
                 />
