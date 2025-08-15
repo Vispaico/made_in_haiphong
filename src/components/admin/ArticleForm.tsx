@@ -131,7 +131,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               type="text"
               id="title"
               {...register('title', { required: 'Title is required' })}
-              className="mt-1 block w-full rounded-md border-secondary bg-background p-2"
+              className="mt-1 block w-full rounded-md border-secondary bg-white text-black p-2"
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
           </div>
@@ -143,7 +143,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               type="text"
               id="slug"
               {...register('slug', { required: 'Slug is required' })}
-              className="mt-1 block w-full rounded-md border-secondary bg-background p-2"
+              className="mt-1 block w-full rounded-md border-secondary bg-white text-black p-2"
             />
             {errors.slug && <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>}
           </div>
@@ -165,7 +165,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                   }}
                   onBlur={field.onBlur}
                   modules={modules}
-                  className="mt-1 bg-background"
+                  className="mt-1 bg-white text-black"
                 />
               )}
             />
@@ -181,7 +181,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               type="text"
               id="featuredImage"
               {...register('featuredImage')}
-              className="mt-1 block w-full rounded-md border-secondary bg-background p-2"
+              className="mt-1 block w-full rounded-md border-secondary bg-white text-black p-2"
               placeholder="https://example.com/image.jpg"
             />
           </div>
@@ -195,7 +195,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                 type="text"
                 id="metaTitle"
                 {...register('metaTitle')}
-                className="mt-1 block w-full rounded-md border-secondary bg-background p-2"
+                className="mt-1 block w-full rounded-md border-secondary bg-white text-black p-2"
               />
             </div>
             <div>
@@ -204,7 +204,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                 id="metaDescription"
                 rows={3}
                 {...register('metaDescription')}
-                className="mt-1 block w-full rounded-md border-secondary bg-background p-2"
+                className="mt-1 block w-full rounded-md border-secondary bg-white text-black p-2"
               />
             </div>
           </div>

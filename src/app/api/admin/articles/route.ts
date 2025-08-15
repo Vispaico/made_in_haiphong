@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     });
 
     revalidatePath('/articles');
+    revalidatePath('/admin/articles');
 
     return NextResponse.json(article, { status: 201 });
   } catch (error) {

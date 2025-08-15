@@ -37,6 +37,7 @@ export async function PUT(
 
     revalidatePath('/articles');
     revalidatePath(`/articles/${article.slug}`);
+    revalidatePath('/admin/articles');
 
     return NextResponse.json(article);
   } catch (error) {
@@ -61,6 +62,7 @@ export async function DELETE(
     
     revalidatePath('/articles');
     revalidatePath(`/articles/${article.slug}`);
+    revalidatePath('/admin/articles');
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {
