@@ -1,7 +1,7 @@
 // src/app/(main)/layout.tsx
 
 import Header from '@/components/common/Header'; // THE FIX: Import the correct, existing Header component
-import Footer from '@/components/common/Footer';
+import NewFooter from '@/components/common/NewFooter';
 import AnnouncementBanner from '@/components/common/AnnouncementBanner';
 
 export default function MainLayout({
@@ -19,7 +19,7 @@ export default function MainLayout({
       <main className="flex-grow">
         {children}
       </main>
-      <Footer />
+      <NewFooter />
     </div>
   );
 }
