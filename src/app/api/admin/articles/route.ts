@@ -18,6 +18,14 @@ export async function POST(req: Request) {
       return new NextResponse('Bad Request: Missing required fields', { status: 400 });
     }
 
+    const existingArticle = await db.article.findUnique({
+      where: { slug },
+    });
+
+    if (existingArticle) {
+      return new NextResponse('Article with this slug already exists', { status: 409 });
+    }
+
     const article = await db.article.create({
       data: {
         title,

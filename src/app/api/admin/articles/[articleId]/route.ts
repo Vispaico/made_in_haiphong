@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import db from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 export async function PUT(
   req: Request,
@@ -34,6 +35,9 @@ export async function PUT(
       },
     });
 
+    revalidatePath('/articles');
+    revalidatePath(`/articles/${article.slug}`);
+
     return NextResponse.json(article);
   } catch (error) {
     console.error("Error updating article:", error);
@@ -51,9 +55,13 @@ export async function DELETE(
   }
 
   try {
-    await db.article.delete({
+    const article = await db.article.delete({
       where: { id: params.articleId },
     });
+    
+    revalidatePath('/articles');
+    revalidatePath(`/articles/${article.slug}`);
+    
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting article:", error);

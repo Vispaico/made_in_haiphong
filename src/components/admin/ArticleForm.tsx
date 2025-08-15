@@ -112,6 +112,8 @@ export default function ArticleForm({ article }: ArticleFormProps) {
     if (response.ok) {
       router.push('/admin/articles');
       router.refresh();
+    } else if (response.status === 409) {
+      alert('An article with this slug already exists. Please choose a different slug.');
     } else {
       alert(`Failed to ${article ? 'update' : 'create'} article.`);
     }
