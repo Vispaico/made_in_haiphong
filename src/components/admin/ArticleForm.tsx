@@ -1,4 +1,11 @@
 // src/components/admin/ArticleForm.tsx
+'use client';
+
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Article } from '@prisma/client';
+import { useForm, Controller } from 'react-hook-form';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/Button';
 import 'react-quill/dist/quill.snow.css';
 import slugify from 'slugify';
