@@ -153,10 +153,12 @@ export default function ArticleForm({ article }: ArticleFormProps) {
               rules={{ required: 'Content is required' }}
               render={({ field }) => (
                 <ReactQuill
-                  ref={quillRef}
                   theme="snow"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(content, delta, source, editor) => {
+                    field.onChange(content);
+                    quillRef.current = editor;
+                  }}
                   onBlur={field.onBlur}
                   modules={modules}
                   className="mt-1 bg-background"
