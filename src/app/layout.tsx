@@ -5,7 +5,7 @@ import Providers from '@/components/providers'; // Import our new component
 
 export const metadata = {
   title: 'Made in Haiphong',
-  description: 'Vispaico',
+  description: 'Haiphong in Your Pocket',
 };
 
 export default function RootLayout({

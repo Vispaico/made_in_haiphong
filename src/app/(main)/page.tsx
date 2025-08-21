@@ -7,6 +7,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 
+import { FloatingItem } from '@/components/common/FloatingItem';
+import { Ufo } from '@/components/common/Ufo';
+
 // THE FIX IS HERE: The hrefs now point to valid category pages, removing the 404 errors.
 const sampleListings = [
   { href: "/explore/food-and-drink", title: "Bánh đa cua", description: "Famous crab noodle soup.", imageUrls: ["/images/food-1.jpg"] },
@@ -26,7 +29,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative flex h-[60vh] w-full items-center justify-center">
+      <section className="relative flex h-[60vh] w-full items-center justify-center overflow-hidden">
         <Image 
           src="https://images.unsplash.com/photo-1688193662553-dd1ed64a77fd?q=80&w=3131&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
           alt="Haiphong Cityscape" 
@@ -34,6 +37,9 @@ export default async function HomePage() {
           className="object-cover" 
           priority 
         />
+        <FloatingItem duration={30} xRange={[-200, 200]} yRange={[-50, 50]} className="absolute top-[20%] left-[50%] transform -translate-x-1/2">
+          <Ufo />
+        </FloatingItem>
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative z-10 flex flex-col items-center p-4 text-center text-white">
           <h1 className="font-heading text-4xl font-bold md:text-6xl">Haiphong in Your Pocket</h1>
