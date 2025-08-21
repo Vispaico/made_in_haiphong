@@ -252,3 +252,9 @@ model Article {
   authorId        String
   author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
+
+model NewsletterSubscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

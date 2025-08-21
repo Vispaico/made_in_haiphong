@@ -14,6 +14,7 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fax, setFax] = useState(''); // Honeypot state
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,6 +29,14 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Honeypot check
+    if (fax) {
+      // Silently fail to prevent bots from knowing they were caught
+      setIsLoading(false);
+      // You might want to log this attempt on a real server
+      return;
+    }
 
     try {
       const result = await signIn('credentials', {
@@ -91,6 +100,8 @@ export default function LoginForm() {
             {/* THE FIX: Replaced <input> with our new <Input /> component */}
             <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
         </div>
+        {/* Honeypot field */}
+        <input type="text" name="fax" value={fax} onChange={(e) => setFax(e.target.value)} tabIndex={-1} autoComplete="off" className="hidden" />
         <div>
           <button type="submit" disabled={isLoading} className="w-full rounded-lg bg-accent py-2.5 font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:bg-accent/50">
             {isLoading ? 'Logging In...' : 'Log In with Email'}

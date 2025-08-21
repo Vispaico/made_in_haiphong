@@ -76,20 +76,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      
-      {!session && (
-        <section className="container mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 lg:px-8">
-            <h2 className="font-heading text-3xl font-bold text-foreground">Join the Community</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
-              Share your favorite finds, offer services, or list a place to stay. Become a part of Haiphong&apos;s story.
-            </p>
-            <div className="mt-8">
-              <Link href="/signup" className="inline-block rounded-lg bg-accent px-8 py-3 font-bold text-white shadow-md transition-transform hover:scale-105">
-                Sign Up Now
-              </Link>
-            </div>
-        </section>
-      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ export default function SignUpForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fax, setFax] = useState(''); // Honeypot state
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,6 +19,13 @@ export default function SignUpForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Honeypot check
+    if (fax) {
+      // You can either return silently or show a generic error
+      setIsLoading(false);
+      return; 
+    }
 
     const response = await fetch('/api/register', {
       method: 'POST',
@@ -62,6 +70,9 @@ export default function SignUpForm() {
             <p className="text-xs text-foreground/60">Must be at least 8 characters and include an uppercase letter, a number, and a special character.</p>
         </div>
         
+        {/* Honeypot field */}
+        <input type="text" name="fax" value={fax} onChange={(e) => setFax(e.target.value)} tabIndex={-1} autoComplete="off" className="hidden" />
+
         {error && <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-500">{error}</p>}
 
         <div>
