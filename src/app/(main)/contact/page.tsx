@@ -44,17 +44,17 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Contact Us</h1>
+    <div className="bg-background min-h-screen py-12">
+      <main className="container mx-auto max-w-4xl px-4">
+        <div className="bg-secondary rounded-lg shadow-md p-8">
+          <h1 className="font-heading text-4xl font-bold text-foreground mb-8 text-center">Contact Us</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Send us a Message</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Send us a Message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-foreground/80">Full Name</label>
                   <Input
                     type="text"
                     name="name"
@@ -67,7 +67,7 @@ const ContactPage = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-foreground/80">Email Address</label>
                   <Input
                     type="email"
                     name="email"
@@ -80,14 +80,12 @@ const ContactPage = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">Message</label>
-                  {/* Honeypot field */}
-                  <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
+                  <label htmlFor="message" className="block text-sm font-medium text-foreground/80">Message</label>
                   <textarea
                     id="message"
                     name="message"
                     rows={4}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border border-secondary bg-background/50 p-2.5 text-foreground transition-colors placeholder:text-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     placeholder="Your message..."
                     value={formData.message}
                     onChange={handleChange}
@@ -95,7 +93,7 @@ const ContactPage = () => {
                   ></textarea>
                 </div>
                 <div>
-                  <Button type="submit" className="w-full" disabled={status === 'sending'}>
+                  <Button type="submit" variant="accent" className="w-full" disabled={status === 'sending'}>
                     {status === 'sending' ? 'Sending...' : 'Send Message'}
                   </Button>
                 </div>
@@ -109,27 +107,27 @@ const ContactPage = () => {
 
             {/* Contact Information */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Contact Information</h2>
-              <div className="space-y-4 text-lg text-gray-600">
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Information</h2>
+              <div className="space-y-4 text-lg text-foreground/80">
                 <p>
-                  <span className="font-semibold">Address:</span><br />
-                  123 Le Hong Phong, Ngo Quyen District<br />
+                  <span className="font-semibold text-foreground">Address:</span><br />
+                  23 To 2 Xom Trung, Ngo Quyen District<br />
                   Haiphong, Vietnam
                 </p>
                 <p>
-                  <span className="font-semibold">Email:</span><br />
-                  <a href="mailto:contact@madeinhaiphong.com" className="text-indigo-600 hover:underline">contact@madeinhaiphong.com</a>
+                  <span className="font-semibold text-foreground">Email:</span><br />
+                  <a href="mailto:contact@made-in-haiphong.com" className="text-primary hover:underline">contact@made-in-haiphong.com</a>
                 </p>
                 <p>
-                  <span className="font-semibold">Phone:</span><br />
-                  +84 123 456 789
+                  <span className="font-semibold text-foreground">Phone:</span><br />
+                  +84 (0) 902 197 160
                 </p>
               </div>
               <div className="mt-8">
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Office Hours</h3>
-                <p className="text-lg text-gray-600">
-                  Monday - Friday: 9:00 AM - 5:00 PM<br />
-                  Saturday - Sunday: Closed
+                <h3 className="text-xl font-semibold text-foreground mb-2">Office Hours</h3>
+                <p className="text-lg text-foreground/80">
+                  Monday - Friday: 5:00 AM - 11:00 PM<br />
+                  Saturday - Sunday: 6:00 AM - 10:00 PM
                 </p>
               </div>
             </div>

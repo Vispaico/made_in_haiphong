@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const faqs = [
@@ -46,15 +45,15 @@ const faqs = [
 
 const FAQPage = () => {
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Frequently Asked Questions</h1>
+    <div className="bg-background min-h-screen py-12">
+      <main className="container mx-auto max-w-4xl px-4">
+        <div className="bg-secondary rounded-lg shadow-md p-8">
+          <h1 className="font-heading text-4xl font-bold text-foreground mb-8 text-center">Frequently Asked Questions</h1>
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div key={index} className="border-b border-gray-200 pb-4">
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">{faq.question}</h3>
-                <p className="text-lg text-gray-600">{faq.answer}</p>
+              <div key={index} className="border-b border-foreground/10 pb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-2">{faq.question}</h3>
+                <p className="text-lg text-foreground/80">{faq.answer}</p>
               </div>
             ))}
           </div>

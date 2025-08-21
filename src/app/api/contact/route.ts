@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     });
 
     const mailOptions = {
-      from: `"${name}" <${email}>`,
+      from: `"Made in Haiphong Contact Form" <${process.env.SMTP_USER}>`,
+      replyTo: email,
       to: process.env.CONTACT_FORM_RECEIVER_EMAIL,
       subject: `New Contact Form Submission from ${name}`,
       text: message,
