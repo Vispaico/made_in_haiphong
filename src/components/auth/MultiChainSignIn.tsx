@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage } from 'wagmi';
-import { useWallet, useSignMessage as useSolanaSignMessage } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
