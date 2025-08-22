@@ -23,8 +23,8 @@ export function LoyaltyBalance() {
 
   useEffect(() => {
     if (data) {
-      // The balance is returned as a BigInt, format it to a readable string
-      setBalance(ethers.formatUnits(data as bigint, 18));
+      // The balance is returned as a BigNumber in ethers v5, format it
+      setBalance(ethers.utils.formatUnits(data as ethers.BigNumber, 18));
     }
   }, [data]);
 

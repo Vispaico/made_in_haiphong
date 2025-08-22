@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const provider = new ethers.JsonRpcProvider(process.env.DEPLOY_NETWORK_URL);
+    const provider = new ethers.providers.JsonRpcProvider(process.env.DEPLOY_NETWORK_URL);
     const wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY!, provider);
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     );
 
     // Convert the amount to the correct unit (e.g., wei for 18 decimals)
-    const amountToSend = ethers.parseUnits(amount.toString(), 18);
+    const amountToSend = ethers.utils.parseUnits(amount.toString(), 18);
 
     const tx = await contract.awardPoints(recipientAddress, amountToSend);
     await tx.wait();
