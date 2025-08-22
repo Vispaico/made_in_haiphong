@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json();
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
       // We don't want to reveal if a user exists or not
       return new NextResponse('If your email is in our system, you will receive a password reset link.', { status: 200 });

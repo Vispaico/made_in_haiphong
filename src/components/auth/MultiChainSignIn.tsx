@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { useWallet, useSelect as useSolanaSelect } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,6 @@ export function MultiChainSignIn() {
 
   // === Solana Hooks ===
   const { publicKey: solPublicKey, connected: isSolConnected, signMessage: signSolMessage, connect: connectSol, select: selectSolWallet, wallet: solWallet } = useWallet();
-  const { select } = useSolanaSelect();
 
   const handleEthereumSignIn = async () => {
     setIsLoading('ethereum');
@@ -67,8 +66,8 @@ export function MultiChainSignIn() {
           publicKey = solWallet.adapter.publicKey;
         } else {
           // A bit of a hack to trigger the wallet selection modal if no wallet is pre-selected
-          select('Solflare' as any); 
-          throw new Error('Please connect your Solana wallet and try again.');
+          selectSolWallet('Solflare' as any); 
+          throw new Error('Please select a Solana wallet and try again.');
         }
       }
       if (!publicKey || !signSolMessage) throw new Error('Could not connect to Solana wallet.');
