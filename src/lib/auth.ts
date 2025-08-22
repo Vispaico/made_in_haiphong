@@ -6,6 +6,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
 
+import { verifyEthereumSignature, verifySolanaSignature } from './auth-utils';
+
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error('Missing Google OAuth environment variables');
 }
@@ -27,6 +29,48 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordCorrect) throw new Error('Incorrect password');
         return user;
       }
+    }),
+    // This is the new provider for Web3 wallets
+    CredentialsProvider({
+      id: 'web3',
+      name: 'Web3',
+      credentials: {
+        message: { label: 'Message', type: 'text' },
+        signature: { label: 'Signature', type: 'text' },
+        address: { label: 'Address', type: 'text' },
+        chain: { label: 'Chain', type: 'text' },
+        nonce: { label: 'Nonce', type: 'text' },
+      },
+      async authorize(credentials) {
+        if (!credentials) return null;
+        try {
+          const { message, signature, address, chain, nonce } = credentials;
+          let isValid = false;
+
+          if (chain === 'ethereum') {
+            isValid = await verifyEthereumSignature(message, signature, nonce);
+          } else if (chain === 'solana') {
+            isValid = verifySolanaSignature(message, signature, address);
+          }
+
+          if (isValid) {
+            let user = await prisma.user.findUnique({ where: { walletAddress: address } });
+            if (!user) {
+              user = await prisma.user.create({
+                data: {
+                  walletAddress: address,
+                  name: `${address.substring(0, 4)}...${address.substring(address.length - 4)}`,
+                },
+              });
+            }
+            return user;
+          }
+          return null;
+        } catch (error) {
+          console.error('Web3 Auth Error:', error);
+          return null;
+        }
+      },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,

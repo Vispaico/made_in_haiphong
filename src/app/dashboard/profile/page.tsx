@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import ProfileForm from '@/components/dashboard/ProfileForm';
+import { LoyaltyBalance } from '@/components/profile/LoyaltyBalance';
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -29,6 +30,10 @@ export default async function ProfilePage() {
       <h1 className="font-heading text-3xl font-bold text-foreground">My Profile</h1>
       <p className="mt-2 text-lg text-foreground/70">View and update your profile information.</p>
       
+      <div className="mt-8">
+        <LoyaltyBalance />
+      </div>
+
       <div className="mt-8">
         <ProfileForm user={user} />
       </div>

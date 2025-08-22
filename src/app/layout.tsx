@@ -1,7 +1,8 @@
 // src/app/layout.tsx
 
 import './globals.css';
-import Providers from '@/components/providers'; // Import our new component
+import Providers from '@/components/providers';
+import { AppProviders } from '@/providers/AppProviders';
 
 export const metadata = {
   title: 'Made in Haiphong',
@@ -16,9 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* THE FIX IS HERE: The closing tag is now correct. */}
         <Providers>
-          {children}
+          <AppProviders>
+            {children}
+          </AppProviders>
         </Providers>
       </body>
     </html>
