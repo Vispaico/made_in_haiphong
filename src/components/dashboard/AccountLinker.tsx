@@ -46,7 +46,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
         ({ message, nonce } = await createChallenge(address, chain));
         signature = await signEthMessage({ message });
       } else {
-        if (solWallet) await connectSol(); else select('Solflare' as any);
+        if (solWallet) await connectSol(); else selectSolWallet('Solflare' as any);
         // A delay to allow wallet connection to establish
         await new Promise(resolve => setTimeout(resolve, 1000));
         
