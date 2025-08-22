@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import { InjectedConnector } from 'wagmi/connectors';
 import { useWallet, useSelect as useSolanaSelect } from '@solana/wallet-adapter-react';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
