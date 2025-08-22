@@ -19,10 +19,19 @@ export async function POST(request: Request) {
       return new NextResponse('Invalid or expired password reset token', { status: 400 });
     }
 
+    const user = await prisma.user.findFirst({
+      where: { email: resetToken.email },
+    });
+
+    if (!user) {
+      // This case should ideally not happen if a token was created, but it's a good safeguard.
+      return new NextResponse('User not found', { status: 404 });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.update({
-      where: { email: resetToken.email },
+      where: { id: user.id },
       data: { hashedPassword },
     });
 
