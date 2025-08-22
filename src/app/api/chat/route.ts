@@ -1,5 +1,5 @@
 // src/app/api/chat/route.ts
-import { google } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleGenerativeAIStream, Message, streamToResponse } from 'ai';
 import { myTravelSDK } from '@/lib/myTravelSDK';
 
@@ -74,7 +74,7 @@ const tools = {
   },
 };
 
-const genAI = new google.generativeai.GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
 export async function POST(req: Request) {
   const { messages }: { messages: Message[] } = await req.json();
