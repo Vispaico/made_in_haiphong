@@ -4,15 +4,24 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, ShipWheel } from 'lucide-react';
-import MobileNav from './MobileNav';
+import MobileNavClient from './MobileNavClient';
 
-export default function DashboardHeader() {
+// Define a type for the link objects
+interface NavLink {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
+
+interface DashboardHeaderProps {
+  navLinks: NavLink[];
+}
+
+export default function DashboardHeader({ navLinks }: DashboardHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    // THE FIX: We use a React Fragment <> to return two sibling elements.
     <>
-      {/* The header is now separate from the mobile nav */}
       <header className="sticky top-0 z-40 border-b border-secondary bg-background/90 p-4 backdrop-blur-sm md:hidden">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -25,9 +34,11 @@ export default function DashboardHeader() {
         </div>
       </header>
       
-      {/* THE FIX: The MobileNav is now a sibling, not a child of the header. */}
-      {/* It will no longer inherit any transparency. */}
-      <MobileNav isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MobileNavClient 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)}
+        navLinks={navLinks}
+      />
     </>
   );
 }

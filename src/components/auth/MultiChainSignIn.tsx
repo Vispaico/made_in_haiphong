@@ -35,8 +35,8 @@ export function MultiChainSignIn() {
     try {
       let address = ethAddress;
       if (!isEthConnected) {
-        const { account } = await connectEth({ connector: injected() });
-        address = account;
+        const result = await connectEth({ connector: injected() });
+        address = result.accounts[0];
       }
       if (!address) throw new Error('Could not connect to Ethereum wallet.');
 

@@ -41,8 +41,8 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
       let address, signature, message, nonce;
 
       if (chain === 'ethereum') {
-        const { account } = await connectEth({ connector: injected() });
-        address = account;
+        const result = await connectEth({ connector: injected() });
+        address = result.accounts[0];
         ({ message, nonce } = await createChallenge(address, chain));
         signature = await signEthMessage({ message });
       } else {

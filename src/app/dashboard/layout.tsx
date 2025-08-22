@@ -79,7 +79,7 @@ export default async function DashboardLayout({
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <DashboardHeader />
+        <DashboardHeader navLinks={dashboardNavLinks} />
         <main className="flex-grow p-4 md:p-8">
           {children}
         </main>

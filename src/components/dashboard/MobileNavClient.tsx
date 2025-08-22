@@ -1,36 +1,29 @@
-// src/components/dashboard/MobileNav.tsx
+// src/components/dashboard/MobileNavClient.tsx
 'use client';
 
 import Link from 'next/link';
-import { 
-  LayoutDashboard, User, MessageSquare, ShoppingBag, 
-  Heart, Star, Settings, X, PlusCircle
-} from 'lucide-react';
+import { X, PlusCircle } from 'lucide-react';
 import LogoutButton from './LogoutButton';
 
-const dashboardNavLinks = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/profile', label: 'My Profile', icon: User },
-  { href: '/dashboard/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/dashboard/listings', label: 'My Listings', icon: ShoppingBag },
-  { href: '/dashboard/bookings', label: 'My Bookings', icon: Star },
-  { href: '/dashboard/saved', label: 'Saved Items', icon: Heart },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-];
-
-interface MobileNavProps {
-  isOpen: boolean;
-  onClose: () => void;
+// Define a type for the link objects
+interface NavLink {
+  href: string;
+  label: string;
+  icon: React.ElementType;
 }
 
-export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
+interface MobileNavClientProps {
+  isOpen: boolean;
+  onClose: () => void;
+  navLinks: NavLink[];
+}
+
+export default function MobileNavClient({ isOpen, onClose, navLinks }: MobileNavClientProps) {
   if (!isOpen) {
     return null;
   }
 
   return (
-    // THE FIX: Reverted to the themed 'bg-background'. It will now be fully opaque
-    // because its parent is no longer transparent.
     <div className="fixed inset-0 z-50 bg-background md:hidden">
       <div className="flex h-full flex-col p-4">
         <div className="flex items-center justify-between">
@@ -52,7 +45,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
         </div>
 
         <nav className="flex flex-grow flex-col space-y-2">
-          {dashboardNavLinks.map((link) => (
+          {navLinks.map((link) => (
             <Link 
               key={link.href} 
               href={link.href}
