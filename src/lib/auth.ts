@@ -4,8 +4,6 @@ import prisma from '@/lib/prisma';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { User } from '@prisma/client';
-
 import { verifyEthereumSignature, verifySolanaSignature } from './auth-utils';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
@@ -22,15 +20,30 @@ export const authOptions: NextAuthOptions = {
         password: {  label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) throw new Error('Please provide email and password');
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-        if (!user || !user.hashedPassword) throw new Error('No user found');
-        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.hashedPassword);
-        if (!isPasswordCorrect) throw new Error('Incorrect password');
-        return user;
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please provide email and password');
+        }
+        const account = await prisma.account.findUnique({
+          where: {
+            provider_providerAccountId: {
+              provider: 'credentials',
+              providerAccountId: credentials.email,
+            },
+          },
+          include: { user: true },
+        });
+
+        if (!account || !account.user.hashedPassword) {
+          throw new Error('No user found with this email.');
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, account.user.hashedPassword);
+        if (!isPasswordCorrect) {
+          throw new Error('Incorrect password.');
+        }
+        return account.user;
       }
     }),
-    // This is the new provider for Web3 wallets
     CredentialsProvider({
       id: 'web3',
       name: 'Web3',
@@ -47,23 +60,37 @@ export const authOptions: NextAuthOptions = {
           const { message, signature, address, chain, nonce } = credentials;
           let isValid = false;
 
-          if (chain === 'ethereum') {
-            isValid = await verifyEthereumSignature(message, signature, nonce);
-          } else if (chain === 'solana') {
-            isValid = verifySolanaSignature(message, signature, address);
-          }
+          if (chain === 'ethereum') isValid = await verifyEthereumSignature(message, signature, nonce);
+          else if (chain === 'solana') isValid = verifySolanaSignature(message, signature, address);
 
           if (isValid) {
-            let user = await prisma.user.findUnique({ where: { walletAddress: address } });
-            if (!user) {
-              user = await prisma.user.create({
-                data: {
-                  walletAddress: address,
-                  name: `${address.substring(0, 4)}...${address.substring(address.length - 4)}`,
+            const account = await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: chain,
+                  providerAccountId: address,
                 },
-              });
-            }
-            return user;
+              },
+              include: { user: true },
+            });
+
+            if (account) return account.user;
+
+            // If no account, create a new user and account
+            const newUser = await prisma.user.create({
+              data: {
+                name: `${address.substring(0, 4)}...${address.substring(address.length - 4)}`,
+                walletAddress: address,
+                accounts: {
+                  create: {
+                    provider: chain,
+                    providerAccountId: address,
+                    type: 'web3',
+                  },
+                },
+              },
+            });
+            return newUser;
           }
           return null;
         } catch (error) {
@@ -80,8 +107,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-
-  // THE FIX IS HERE: This is the definitive, production-ready cookie configuration.
   cookies: {
     sessionToken: {
       name: `__Secure-next-auth.session-token`,
@@ -89,24 +114,61 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        // This is the crucial part. We conditionally set the domain.
-        // For production, the cookie is valid for `.made-in-haiphong.com`,
-        // which includes `www.made-in-haiphong.com`.
-        // For development, we don't set a domain.
         domain: process.env.NODE_ENV === 'production' ? '.made-in-haiphong.com' : undefined,
         secure: true
       }
     }
   },
-
   callbacks: {
-    async jwt({ token, user }) {
-      // Initial sign-in
+    async signIn({ user, account, profile }) {
+      if (!user.id || !account) return false;
+
+      const existingAccount = await prisma.account.findUnique({
+        where: {
+          provider_providerAccountId: {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+          },
+        },
+      });
+
+      if (existingAccount) {
+        return true; // Account already exists, sign in is valid
+      }
+
+      // Link new account to an existing user if email matches
+      if (profile?.email) {
+        const existingUser = await prisma.user.findFirst({
+          where: { email: profile.email },
+        });
+
+        if (existingUser) {
+          await prisma.account.create({
+            data: {
+              userId: existingUser.id,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              type: account.type,
+              access_token: account.access_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+            },
+          });
+          return true;
+        }
+      }
+      
+      // This is a new user if no existing account or email match was found.
+      // The Prisma adapter will handle creating the user and account.
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
       }
-
-      // Refetch user data to keep session fresh
+      
       const dbUser = await prisma.user.findUnique({
         where: { id: token.id as string },
       });
@@ -114,8 +176,10 @@ export const authOptions: NextAuthOptions = {
       if (dbUser) {
         token.isAdmin = dbUser.isAdmin;
         token.loyaltyBalance = dbUser.loyaltyBalance;
+        token.name = dbUser.name;
+        token.picture = dbUser.image;
       }
-
+      
       return token;
     },
     async session({ session, token }) {
@@ -123,6 +187,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.isAdmin = token.isAdmin as boolean;
         session.user.loyaltyBalance = token.loyaltyBalance as number;
+        session.user.name = token.name;
+        session.user.image = token.picture;
       }
       return session;
     },

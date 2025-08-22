@@ -38,8 +38,8 @@ enum ActivityType {
 model User {
   id                 String             @id @default(cuid())
   name               String?
-  email              String?            @unique
-  walletAddress      String?            @unique
+  email              String?            // Now optional and non-unique
+  walletAddress      String?            // Now optional and non-unique
   hashedPassword     String?
   emailVerified      DateTime?
   image              String?
@@ -60,7 +60,6 @@ model User {
   bookings           Booking[]
   articles           Article[]
 
-  // THE FIX: These relations are now correctly added to the single User model
   activities         Activity[]
   initiatedActivities Activity[] @relation("InitiatedActivities")
 }
@@ -79,6 +78,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -259,4 +259,14 @@ model NewsletterSubscription {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
 }

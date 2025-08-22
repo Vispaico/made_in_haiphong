@@ -99,9 +99,15 @@ export default function LoginForm() {
             <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
         </div>
         <div className="space-y-2">
+            <div className="flex items-center justify-between">
             <label htmlFor="password">Password</label>
-            {/* THE FIX: Replaced <input> with our new <Input /> component */}
-            <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
+            <Link href="/forgot-password"
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Forgot your password?
+            </Link>
+        </div>
+        <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
         </div>
         {/* Honeypot field */}
         <input type="text" name="fax" value={fax} onChange={(e) => setFax(e.target.value)} tabIndex={-1} autoComplete="off" className="hidden" />

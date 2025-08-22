@@ -1,14 +1,37 @@
 // src/app/dashboard/settings/page.tsx
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import prisma from '@/lib/prisma';
+import { Lock, Bell, Trash2, Link as LinkIcon } from 'lucide-react';
+import AccountLinker from '@/components/dashboard/AccountLinker';
 
-import { Lock, Bell, Trash2 } from 'lucide-react';
+export default async function SettingsPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect('/login');
 
-export default function SettingsPage() {
+  const accounts = await prisma.account.findMany({
+    where: { userId: session.user.id },
+  });
+
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-foreground">Settings</h1>
-      <p className="mt-2 text-lg text-foreground/70">Manage your account and notification preferences.</p>
+      <p className="mt-2 text-lg text-foreground/70">Manage your account, linked wallets, and notification preferences.</p>
 
       <div className="mt-8 max-w-2xl space-y-8">
+        {/* Linked Accounts Section */}
+        <div className="rounded-lg border border-secondary bg-background p-6">
+          <div className="flex items-center gap-3">
+            <LinkIcon className="h-5 w-5 text-foreground/80" />
+            <h2 className="font-heading text-xl font-semibold">Linked Accounts</h2>
+          </div>
+          <p className="mt-2 text-sm text-foreground/70">
+            Connect your wallets to your account for a seamless sign-in experience.
+          </p>
+          <AccountLinker accounts={accounts} />
+        </div>
+
         {/* Change Password Section */}
         <div className="rounded-lg border border-secondary bg-background p-6">
           <div className="flex items-center gap-3">
