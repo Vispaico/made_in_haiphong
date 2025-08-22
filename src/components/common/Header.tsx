@@ -104,6 +104,13 @@ export default function Header() {
             <div className="!mt-4 flex flex-col space-y-1 border-t border-secondary pt-4">
               {status === 'authenticated' ? (
                 <>
+                  <Link href="/dashboard/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
+                    <span>{session.user?.name}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-primary">
+                      <Gem className="h-3 w-3" />
+                      {session.user?.loyaltyBalance ?? 0}
+                    </span>
+                  </Link>
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-base font-medium text-foreground/80 hover:bg-secondary hover:text-foreground">
                     My Dashboard
                   </Link>
