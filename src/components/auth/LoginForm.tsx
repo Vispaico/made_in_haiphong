@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { MultiChainSignIn } from './MultiChainSignIn';
 
@@ -105,8 +106,15 @@ export default function LoginForm() {
         {/* Honeypot field */}
         <input type="text" name="fax" value={fax} onChange={(e) => setFax(e.target.value)} tabIndex={-1} autoComplete="off" className="hidden" />
         <div>
-          <button type="submit" disabled={isLoading} className="w-full rounded-lg bg-accent py-2.5 font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:bg-accent/50">
-            {isLoading ? 'Logging In...' : 'Log In with Email'}
+          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center rounded-lg bg-accent py-2.5 font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:bg-accent/50">
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span>Logging In...</span>
+              </>
+            ) : (
+              'Log In with Email'
+            )}
           </button>
         </div>
       </form>

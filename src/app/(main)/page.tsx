@@ -44,11 +44,23 @@ export default async function HomePage() {
         <div className="relative z-10 flex flex-col items-center p-4 text-center text-white">
           <h1 className="font-heading text-4xl font-bold md:text-6xl">Haiphong in Your Pocket</h1>
           <p className="mt-2 max-w-2xl text-lg md:text-xl">Discover, Shop, Connect.</p>
-          <div className="mt-8 flex w-full max-w-xl items-center">
-            <input type="search" placeholder="Search for food, motorbikes, or places..." className="w-full rounded-l-md border-0 bg-white/90 p-3 text-zinc-900 placeholder-zinc-500 focus:ring-2 focus:ring-accent focus:ring-inset"/>
-            <button className="flex items-center justify-center rounded-r-md bg-accent p-3 text-white transition-colors hover:bg-accent/90">
-              <Search className="h-6 w-6" />
-            </button>
+          <div className="mt-8 w-full max-w-2xl rounded-lg bg-black/30 p-4 backdrop-blur-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <input 
+                type="text" 
+                placeholder="I'm looking for..." 
+                className="w-full rounded-md border-0 bg-white/90 p-3 text-foreground placeholder-zinc-500 focus:ring-2 focus:ring-accent focus:ring-inset"
+              />
+              <input 
+                type="text" 
+                placeholder="in..." 
+                className="w-full rounded-md border-0 bg-white/90 p-3 text-foreground placeholder-zinc-500 focus:ring-2 focus:ring-accent focus:ring-inset"
+              />
+              <button className="flex w-full items-center justify-center rounded-md bg-accent p-3 text-white transition-colors hover:bg-accent/90 md:col-span-3 lg:md:col-span-1">
+                <Search className="h-6 w-6 mr-2" />
+                Search
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -56,11 +68,9 @@ export default async function HomePage() {
       <section className="container mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
           {categoryLinks.map((link) => (
-            <Link href={link.href} key={link.href} className="group">
-              <div className="rounded-xl bg-secondary p-6 shadow transition-transform hover:-translate-y-1">
-                <link.icon className="mx-auto h-12 w-12 text-primary" />
-                <h3 className="mt-4 font-heading font-bold text-foreground">{link.label}</h3>
-              </div>
+            <Link href={link.href} key={link.href} className="group block rounded-xl bg-secondary p-6 shadow transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
+              <link.icon className="mx-auto h-12 w-12 text-primary transition-colors group-hover:text-accent" />
+              <h3 className="mt-4 font-heading font-bold text-foreground">{link.label}</h3>
             </Link>
           ))}
         </div>

@@ -50,7 +50,7 @@ export default async function MyBookingsPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-3xl font-bold text-foreground">My Booknings</h1>
+      <h1 className="font-heading text-3xl font-bold text-foreground">My Bookings</h1>
       <p className="mt-2 text-lg text-foreground/70">Manage your trips and booking requests.</p>
       
       <div className="mt-8">

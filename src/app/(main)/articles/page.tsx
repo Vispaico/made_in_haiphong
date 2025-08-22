@@ -27,7 +27,7 @@ export default async function ArticlesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article) => (
             <Link key={article.id} href={`/articles/${article.slug}`}>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105">
+              <div className="bg-secondary rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105">
                 {article.featuredImage && (
                   <div className="relative h-48 w-full">
                     <Image src={article.featuredImage} alt={article.title} layout="fill" objectFit="cover" />
