@@ -17,8 +17,6 @@ export function LoyaltyBalance() {
     abi: TravelPoints.abi,
     functionName: 'balanceOf',
     args: [address],
-    // Watch for changes to the balance
-    watch: true,
   });
 
   useEffect(() => {
