@@ -93,5 +93,5 @@ export async function POST(req: Request) {
   });
 
   const aiStream = GoogleGenerativeAIStream(stream);
-  return streamToResponse(aiStream);
+  return streamToResponse(aiStream, {});
 }
