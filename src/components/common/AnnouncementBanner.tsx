@@ -1,22 +1,25 @@
 // src/components/common/AnnouncementBanner.tsx
 
 import prisma from '@/lib/prisma';
-// THE FIX: The unused 'X' icon has been removed.
 import { Megaphone } from 'lucide-react';
+import { unstable_cache as cache } from 'next/cache';
 
-// This is a Server Component, so it can fetch data directly.
+// This function fetches the announcement and is cached.
+const getCachedAnnouncement = cache(
+  async () => {
+    const announcement = await prisma.announcement.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return announcement;
+  },
+  ['active-announcement'], // A unique key for this cache entry
+  { revalidate: 60 } // Revalidate the cache every 60 seconds
+);
+
 export default async function AnnouncementBanner() {
-  // Find the most recent announcement that is currently active.
-  const announcement = await prisma.announcement.findFirst({
-    where: {
-      isActive: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  const announcement = await getCachedAnnouncement();
 
-  // If no active announcement is found, render nothing.
   if (!announcement) {
     return null;
   }

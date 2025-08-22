@@ -102,9 +102,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const dbUser = user as User;
-        token.id = dbUser.id;
-        token.isAdmin = dbUser.isAdmin;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.isAdmin = dbUser.isAdmin;
+          token.loyaltyBalance = dbUser.loyaltyBalance;
+        }
       }
       return token;
     },
@@ -112,6 +117,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.isAdmin = token.isAdmin as boolean;
+        session.user.loyaltyBalance = token.loyaltyBalance as number;
       }
       return session;
     },

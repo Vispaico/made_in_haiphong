@@ -10,6 +10,8 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
+      isAdmin: boolean;
+      loyaltyBalance: number;
     } & DefaultSession['user']; // Inherit the default properties (name, email, image)
   }
 
@@ -18,5 +20,15 @@ declare module 'next-auth' {
    */
   interface User {
     id: string;
+    isAdmin: boolean;
+    loyaltyBalance: number;
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    isAdmin: boolean;
+    loyaltyBalance: number;
   }
 }

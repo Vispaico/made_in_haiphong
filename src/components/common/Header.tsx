@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image'; // THE FIX: Import the Next.js Image component
 import { useSession, signOut } from 'next-auth/react';
 // THE FIX: ShipWheel is no longer needed
-import { Search, X, Menu, UserCircle, MessageSquare } from 'lucide-react';
+import { Search, X, Menu, UserCircle, MessageSquare, Gem } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -63,6 +63,10 @@ export default function Header() {
                 <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary">
                   <UserCircle className="h-5 w-5" />
                   <span>{session.user?.name}</span>
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-primary">
+                    <Gem className="h-3 w-3" />
+                    {session.user?.loyaltyBalance ?? 0}
+                  </span>
                 </Link>
                 <button onClick={handleLogout} className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80">
                   Log Out
