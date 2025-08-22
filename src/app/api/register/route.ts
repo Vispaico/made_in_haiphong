@@ -23,9 +23,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return NextResponse.json({ message: 'User with this email already exists' }, { status: 409 });
+    const existingAccount = await prisma.account.findUnique({
+      where: {
+        provider_providerAccountId: {
+          provider: 'credentials',
+          providerAccountId: email,
+        },
+      },
+    });
+
+    if (existingAccount) {
+      return NextResponse.json({ message: 'An account with this email already exists' }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -33,8 +41,15 @@ export async function POST(req: Request) {
     const newUser = await prisma.user.create({
       data: {
         email,
-        hashedPassword,
-        name, // Use the name provided from the form.
+        name,
+        hashedPassword, // Storing this on the User model for now, though it's tied to the credentials account
+        accounts: {
+          create: {
+            type: 'credentials',
+            provider: 'credentials',
+            providerAccountId: email,
+          },
+        },
       },
     });
 
