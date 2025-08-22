@@ -1,6 +1,6 @@
 // src/app/api/chat/route.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GoogleGenerativeAIStream, Message, streamToResponse } from 'ai';
+import { GoogleGenerativeAIStream, Message } from 'ai';
 import { myTravelSDK } from '@/lib/myTravelSDK';
 
 // IMPORTANT! Set the runtime to edge
@@ -93,5 +93,7 @@ export async function POST(req: Request) {
   });
 
   const aiStream = GoogleGenerativeAIStream(stream);
-  return streamToResponse(aiStream, {});
+
+  // Respond with the stream
+  return new Response(aiStream);
 }
