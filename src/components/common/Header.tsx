@@ -7,7 +7,7 @@ import Image from 'next/image'; // THE FIX: Import the Next.js Image component
 import { useSession, signOut } from 'next-auth/react';
 // THE FIX: ShipWheel is no longer needed
 import UserButton from '@/components/auth/UserButton';
-import { Search, X, Menu, MessageSquare } from 'lucide-react';
+import { Search, X, Menu, MessageSquare, Gem } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
