@@ -101,16 +101,21 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      // Initial sign-in
       if (user) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.isAdmin = dbUser.isAdmin;
-          token.loyaltyBalance = dbUser.loyaltyBalance;
-        }
+        token.id = user.id;
       }
+
+      // Refetch user data to keep session fresh
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.id as string },
+      });
+
+      if (dbUser) {
+        token.isAdmin = dbUser.isAdmin;
+        token.loyaltyBalance = dbUser.loyaltyBalance;
+      }
+
       return token;
     },
     async session({ session, token }) {
