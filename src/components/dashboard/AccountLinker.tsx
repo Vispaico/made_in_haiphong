@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Loader2 } from 'lucide-react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { useWallet, useSelect as useSolanaSelect } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { createChallenge } from '@/lib/auth-utils';
 
 // Icons
