@@ -8,7 +8,7 @@ import { Account } from '@prisma/client';
 import { Button } from '@/components/ui/Button';
 import { Loader2 } from 'lucide-react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
 import { useWallet, useSelect as useSolanaSelect } from '@solana/wallet-adapter-react';
 import { createChallenge } from '@/lib/auth-utils';
 
@@ -28,7 +28,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Web3 Hooks
-  const { connectAsync: connectEth } = useWagmiConnect({ connector: new InjectedConnector() });
+  const { connectAsync: connectEth } = useWagmiConnect();
   const { signMessageAsync: signEthMessage } = useSignMessage();
   const { connect: connectSol, select: selectSolWallet, wallet: solWallet, signMessage: signSolMessage } = useWallet();
 
@@ -41,7 +41,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
       let address, signature, message, nonce;
 
       if (chain === 'ethereum') {
-        const { account } = await connectEth();
+        const { account } = await connectEth({ connector: injected() });
         address = account;
         ({ message, nonce } = await createChallenge(address, chain));
         signature = await signEthMessage({ message });

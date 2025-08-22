@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
 import { useWallet, useSelect as useSolanaSelect } from '@solana/wallet-adapter-react';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
@@ -23,7 +23,7 @@ export function MultiChainSignIn() {
 
   // === Ethereum Hooks ===
   const { address: ethAddress, isConnected: isEthConnected } = useAccount();
-  const { connectAsync: connectEth } = useWagmiConnect({ connector: new InjectedConnector() });
+  const { connectAsync: connectEth } = useWagmiConnect();
   const { signMessageAsync: signEthMessage } = useSignMessage();
 
   // === Solana Hooks ===
@@ -36,7 +36,7 @@ export function MultiChainSignIn() {
     try {
       let address = ethAddress;
       if (!isEthConnected) {
-        const { account } = await connectEth();
+        const { account } = await connectEth({ connector: injected() });
         address = account;
       }
       if (!address) throw new Error('Could not connect to Ethereum wallet.');
