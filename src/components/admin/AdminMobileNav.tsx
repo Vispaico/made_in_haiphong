@@ -2,13 +2,15 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutGrid, Users, Settings, Compass, X } from 'lucide-react';
+import { LayoutGrid, Users, Settings, Compass, X, LayoutList, Newspaper } from 'lucide-react';
 import LogoutButton from '../dashboard/LogoutButton'; // We can reuse the same logout button
 
 const adminNavLinks = [
   { href: '/admin', label: 'Manage Listings', icon: LayoutGrid },
   { href: '/admin/users', label: 'Manage Users', icon: Users },
   { href: '/admin/explore', label: 'Manage Explore', icon: Compass },
+  { href: '/admin/categories', label: 'Manage Categories', icon: LayoutList },
+  { href: '/admin/articles', label: 'Manage Articles', icon: Newspaper },
   { href: '/admin/settings', label: 'Admin Settings', icon: Settings },
 ];
 

@@ -9,6 +9,17 @@ import {
 import LogoutButton from '@/components/dashboard/LogoutButton';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
+const iconMap = {
+  LayoutDashboard,
+  User,
+  MessageSquare,
+  ShoppingBag,
+  Star,
+  Heart,
+  Settings,
+  Shield,
+};
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -18,18 +29,18 @@ export default async function DashboardLayout({
   const isAdmin = session?.user?.isAdmin || false;
 
   const dashboardNavLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/profile', label: 'My Profile', icon: User },
-    { href: '/dashboard/messages', label: 'Messages', icon: MessageSquare },
-    { href: '/dashboard/listings', label: 'My Listings', icon: ShoppingBag },
-    { href: '/dashboard/bookings', label: 'My Bookings', icon: Star },
-    { href: '/dashboard/saved', label: 'Saved Items', icon: Heart },
-    { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard', label: 'Dashboard', icon: 'LayoutDashboard' },
+    { href: '/dashboard/profile', label: 'My Profile', icon: 'User' },
+    { href: '/dashboard/messages', label: 'Messages', icon: 'MessageSquare' },
+    { href: '/dashboard/listings', label: 'My Listings', icon: 'ShoppingBag' },
+    { href: '/dashboard/bookings', label: 'My Bookings', icon: 'Star' },
+    { href: '/dashboard/saved', label: 'Saved Items', icon: 'Heart' },
+    { href: '/dashboard/settings', label: 'Settings', icon: 'Settings' },
   ];
 
   // Conditionally add the Admin link
   if (isAdmin) {
-    dashboardNavLinks.push({ href: '/admin', label: 'Admin Dashboard', icon: Shield });
+    dashboardNavLinks.push({ href: '/admin', label: 'Admin Dashboard', icon: 'Shield' });
   }
 
   return (
@@ -53,16 +64,19 @@ export default async function DashboardLayout({
         </div>
 
         <nav className="flex flex-grow flex-col space-y-2">
-          {dashboardNavLinks.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              <link.icon className="h-5 w-5" />
-              <span>{link.label}</span>
-            </Link>
-          ))}
+          {dashboardNavLinks.map((link) => {
+            const Icon = iconMap[link.icon as keyof typeof iconMap];
+            return (
+              <Link 
+                key={link.href} 
+                href={link.href}
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <Icon className="h-5 w-5" />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* THE FIX: Added a new, distinct "Upgrade" link at the bottom */}

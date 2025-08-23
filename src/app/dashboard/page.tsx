@@ -1,15 +1,13 @@
 // src/app/dashboard/page.tsx
-
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { MessageSquare, Star, Heart, ArrowRight, UserPlus, MessageCircle, Gem } from 'lucide-react';
+import { MessageSquare, Star, Heart, ArrowRight, UserPlus, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Activity } from '@prisma/client'; // Import the type for safety
 
-// THE FIX: The SummaryCard function is now fully implemented with a return statement.
 function SummaryCard({ icon, title, value, href, cta }: { icon: React.ReactNode; title: string; value: number; href: string; cta: string }) {
   return (
     <Link href={href} className="group block rounded-xl border border-secondary bg-background p-6 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-md hover:-translate-y-1">
@@ -100,11 +98,10 @@ export default async function DashboardPage() {
       <h1 className="font-heading text-3xl font-bold text-foreground">Welcome back, {user.name}!</h1>
       <p className="mt-2 text-lg text-foreground/70">Here’s a summary of your activity.</p>
       
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <SummaryCard href="/dashboard/messages" title="Total Conversations" value={conversationsCount} cta="View all messages" icon={<div className="rounded-full bg-primary/10 p-3 text-primary"><MessageSquare className="h-6 w-6" /></div>}/>
         <SummaryCard href="/dashboard/bookings" title="Pending Booking Requests" value={pendingBookingsCount} cta="Manage your bookings" icon={<div className="rounded-full bg-accent/10 p-3 text-accent"><Star className="h-6 w-6" /></div>}/>
         <SummaryCard href="/dashboard/saved" title="Total Saved Items" value={totalSavedCount} cta="View your saved items" icon={<div className="rounded-full bg-yellow-500/10 p-3 text-yellow-500"><Heart className="h-6 w-6" /></div>}/>
-        <SummaryCard href="/dashboard/loyalty" title="Loyalty Balance" value={session.user.loyaltyBalance ?? 0} cta="View details & history" icon={<div className="rounded-full bg-emerald-500/10 p-3 text-emerald-500"><Gem className="h-6 w-6" /></div>}/>
       </div>
 
       <div className="mt-10">
