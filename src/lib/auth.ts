@@ -23,25 +23,21 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Please provide email and password');
         }
-        const account = await prisma.account.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
-            provider_providerAccountId: {
-              provider: 'credentials',
-              providerAccountId: credentials.email,
-            },
+            email: credentials.email,
           },
-          include: { user: true },
         });
 
-        if (!account || !account.user.hashedPassword) {
+        if (!user || !user.hashedPassword) {
           throw new Error('No user found with this email.');
         }
 
-        const isPasswordCorrect = await bcrypt.compare(credentials.password, account.user.hashedPassword);
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.hashedPassword);
         if (!isPasswordCorrect) {
           throw new Error('Incorrect password.');
         }
-        return account.user;
+        return user;
       }
     }),
     CredentialsProvider({

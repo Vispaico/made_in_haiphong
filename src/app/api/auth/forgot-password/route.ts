@@ -27,6 +27,11 @@ export async function POST(request: Request) {
 
     const resetLink = `${process.env.NEXTAUTH_URL}/reset-password/${token}`;
 
+    if (!process.env.EMAIL_SERVER_HOST || !process.env.EMAIL_SERVER_PORT || !process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD || !process.env.EMAIL_FROM) {
+      console.error('Missing email server environment variables');
+      return new NextResponse('Internal Server Error', { status: 500 });
+    }
+
     // Configure nodemailer
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
