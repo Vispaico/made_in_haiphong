@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Default styles for the Solana wallet modal
@@ -28,7 +29,15 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   // Solana wallet configuration
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-  const wallets = useMemo(() => [], [network]); // Auto-detects Phantom, Solflare, etc.
+  
+  // Instantiate Solana wallet adapters
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
+    ],
+    [network]
+  );
 
   return (
     <WagmiProvider config={wagmiConfig}>

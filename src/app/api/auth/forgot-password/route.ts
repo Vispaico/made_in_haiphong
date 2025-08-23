@@ -43,12 +43,21 @@ export async function POST(request: Request) {
       },
     });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Reset Your Password for Made in Haiphong',
-      html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
-    });
+    try {
+      const info = await transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: email,
+        subject: 'Reset Your Password for Made in Haiphong',
+        html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
+      });
+
+      console.log('Email sent successfully. Server Response:', info.response);
+
+    } catch (emailError) {
+      console.error('Failed to send email. Error:', emailError);
+      // We still don't want to leak information, but we need to know about the error.
+      return new NextResponse('Internal Server Error', { status: 500 });
+    }
 
     return new NextResponse('If your email is in our system, you will receive a password reset link.', { status: 200 });
   } catch (error) {
