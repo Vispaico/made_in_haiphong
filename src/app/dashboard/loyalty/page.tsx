@@ -1,52 +1,67 @@
 // src/app/dashboard/loyalty/page.tsx
-import { Gem } from 'lucide-react';
+import { Gem, Star, Gift, MessageSquare } from 'lucide-react';
+
+const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
+  <div className="bg-background rounded-xl border border-secondary p-6 shadow-sm">
+    <div className="flex items-center gap-4 mb-3">
+      {icon}
+      <h3 className="font-heading text-xl font-semibold text-foreground">{title}</h3>
+    </div>
+    <p className="text-foreground/70">{children}</p>
+  </div>
+);
 
 export default function LoyaltyPage() {
   return (
-    <div className="bg-background text-foreground">
-      <div className="container mx-auto max-w-4xl py-12 px-4">
-        <div className="flex items-center gap-4 mb-6">
-          <Gem className="h-10 w-10 text-emerald-500" />
-          <h1 className="font-heading text-4xl font-bold">Our Loyalty Program</h1>
+    <div className="bg-secondary/50">
+      <div className="container mx-auto max-w-5xl py-12 md:py-16 px-4">
+        
+        {/* --- Header --- */}
+        <div className="text-center mb-12">
+          <div className="inline-block bg-emerald-500/10 p-4 rounded-full mb-4">
+            <Gem className="h-12 w-12 text-emerald-500" />
+          </div>
+          <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Made in Haiphong Loyalty Program</h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-foreground/70">
+            We value our community. Earn points for your contributions and unlock exclusive rewards.
+          </p>
         </div>
         
-        <div className="prose prose-lg max-w-none rounded-xl border border-secondary bg-background p-8 shadow-sm">
-          <p>
-            Welcome to the Made in Haiphong Loyalty Program! We believe in rewarding our community members for their engagement and contributions. Our program is designed to be simple, transparent, and valuable.
-          </p>
-          
-          <h2 className="font-heading text-2xl font-semibold">How to Earn Points</h2>
-          <p>
-            You can earn Loyalty Points through various activities on our platform. Here are some of the ways you can accumulate points:
-          </p>
-          <ul>
-            <li><strong>Creating Listings:</strong> Share your spaces and services with the community and earn points for each new listing.</li>
-            <li><strong>Engaging with Posts:</strong> Like, comment, and participate in community discussions to earn rewards.</li>
-            <li><strong>Making Bookings:</strong> Every booking you complete through our platform will add points to your balance.</li>
-            <li><strong>Special Promotions:</strong> Keep an eye out for special events and promotions where you can earn bonus points!</li>
-          </ul>
-
-          <h2 className="font-heading text-2xl font-semibold">What Can You Do With Points?</h2>
-          <p>
-            Your Loyalty Points are more than just numbers; they unlock exclusive benefits and rewards. While we are still developing the full range of perks, you can look forward to:
-          </p>
-          <ul>
-            <li>Discounts on future bookings.</li>
-            <li>Featuring your listings more prominently.</li>
-            <li>Access to exclusive community events and content.</li>
-            <li>And much more to come!</li>
-          </ul>
-
-          <h2 className="font-heading text-2xl font-semibold">Frequently Asked Questions</h2>
-          <p><strong>Do my points expire?</strong><br />
-          No, your loyalty points do not expire. You can accumulate them over time and use them whenever you like.</p>
-          <p><strong>How can I check my balance?</strong><br />
-          You can always see your current Loyalty Balance on your main dashboard and in your profile settings.</p>
-
-          <p className="mt-8 border-t border-secondary pt-4 text-center text-foreground/70">
-            Thank you for being a valued member of the Made in Haiphong community. We're excited to grow with you!
-          </p>
+        {/* --- How to Earn Section --- */}
+        <div className="mb-16">
+          <h2 className="font-heading text-3xl font-bold text-center mb-8 text-foreground">How to Earn Points</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <FeatureCard icon={<Star className="h-8 w-8 text-yellow-500" />} title="Create & Engage">
+              Earn points for creating new listings, making bookings, and participating in community discussions.
+            </FeatureCard>
+            <FeatureCard icon={<Gift className="h-8 w-8 text-accent" />} title="Unlock Rewards">
+              Use your points for discounts on bookings, featured listings, and access to exclusive events.
+            </FeatureCard>
+            <FeatureCard icon={<MessageSquare className="h-8 w-8 text-primary" />} title="Stay Active">
+              Keep an eye out for special promotions and bonus point opportunities to grow your balance even faster.
+            </FeatureCard>
+          </div>
         </div>
+
+        {/* --- FAQ Section --- */}
+        <div>
+          <h2 className="font-heading text-3xl font-bold text-center mb-8 text-foreground">Frequently Asked Questions</h2>
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-background rounded-xl border border-secondary p-6 shadow-sm">
+              <h4 className="font-semibold text-lg text-foreground mb-2">Do my points expire?</h4>
+              <p className="text-foreground/70">Never. Your loyalty points are yours to keep and do not have an expiration date. Accumulate them at your own pace.</p>
+            </div>
+            <div className="bg-background rounded-xl border border-secondary p-6 shadow-sm">
+              <h4 className="font-semibold text-lg text-foreground mb-2">How can I check my balance?</h4>
+              <p className="text-foreground/70">You can see your current Loyalty Balance at any time on your main dashboard page and in your profile settings.</p>
+            </div>
+             <div className="bg-background rounded-xl border border-secondary p-6 shadow-sm">
+              <h4 className="font-semibold text-lg text-foreground mb-2">Are there other ways to earn points?</h4>
+              <p className="text-foreground/70">Yes! We are constantly working on new ways to reward our community. We'll announce new earning opportunities through our newsletter and on-site announcements.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
