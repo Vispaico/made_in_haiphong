@@ -50,7 +50,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
       if (provider === 'ethereum') disconnectWagmi();
       if (provider === 'solana') await disconnectSolana();
 
-      router.refresh();
+      window.location.reload();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -74,7 +74,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address, signature, message, nonce, chain: 'ethereum', userId: session?.user?.id }),
       });
-      router.refresh();
+      window.location.reload();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -103,7 +103,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address, signature, message, nonce, chain: 'solana', userId: session?.user?.id }),
         });
-        router.refresh();
+        window.location.reload();
       } catch (err: any) {
         setError(err.message);
       } finally {
