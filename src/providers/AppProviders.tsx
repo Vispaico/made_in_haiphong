@@ -4,7 +4,7 @@
 import React, { useMemo } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, sepolia, polygon } from 'wagmi/chains';
-import { walletConnect } from 'wagmi/connectors';
+import { walletConnect, injected } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -27,6 +27,7 @@ if (!walletConnectProjectId) {
 const wagmiConfig = createConfig({
   chains: [mainnet, sepolia, polygon],
   connectors: [
+    injected(),
     walletConnect({ projectId: walletConnectProjectId, metadata: { name: 'Made in Haiphong', description: 'Haiphong in Your Pocket', url: 'https://www.made-in-haiphong.com', icons: [] } }),
   ],
   transports: {

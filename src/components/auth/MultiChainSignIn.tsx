@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
-import { injected } from 'wagmi/connectors';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
@@ -23,19 +22,20 @@ export function MultiChainSignIn() {
 
   // === Ethereum Hooks ===
   const { address: ethAddress, isConnected: isEthConnected } = useAccount();
-  const { connectAsync: connectEth } = useWagmiConnect();
+  const { connectors, connectAsync: connectEth } = useWagmiConnect();
   const { signMessageAsync: signEthMessage } = useSignMessage();
 
   // === Solana Hooks ===
   const { publicKey: solPublicKey, connected: isSolConnected, signMessage: signSolMessage, connect: connectSol, select: selectSolWallet, wallet: solWallet } = useWallet();
 
-  const handleEthereumSignIn = async () => {
-    setIsLoading('ethereum');
+  const handleEthereumSignIn = async (connector: any) => {
+    setIsLoading(connector.id);
     setError(null);
     try {
       let address = ethAddress;
+      // Check if we need to connect
       if (!isEthConnected) {
-        const result = await connectEth({ connector: injected() });
+        const result = await connectEth({ connector });
         address = result.accounts[0];
       }
       if (!address) throw new Error('Could not connect to Ethereum wallet.');
@@ -92,21 +92,24 @@ export function MultiChainSignIn() {
     <div className="space-y-4">
       {error && <p className="text-red-500/90 text-sm text-center p-2 bg-red-500/10 rounded-md">{error}</p>}
       
-      <Button
-        onClick={handleEthereumSignIn}
-        disabled={isLoading !== null}
-        className="w-full flex items-center justify-center gap-3"
-        variant="outline"
-      >
-        {isLoading === 'ethereum' ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : (
-          <>
-            <EthereumIcon />
-            <span>Sign in with Ethereum</span>
-          </>
-        )}
-      </Button>
+      {connectors.map((connector) => (
+        <Button
+          key={connector.id}
+          onClick={() => handleEthereumSignIn(connector)}
+          disabled={isLoading !== null}
+          className="w-full flex items-center justify-center gap-3"
+          variant="outline"
+        >
+          {isLoading === connector.id ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <>
+              <EthereumIcon />
+              <span>Sign in with {connector.name}</span>
+            </>
+          )}
+        </Button>
+      ))}
 
       <Button
         onClick={handleSolanaSignIn}
