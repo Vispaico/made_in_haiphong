@@ -5,10 +5,12 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useAccount, useSignMessage, useConnect as useWagmiConnect } from 'wagmi';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/Button';
 import { createChallenge } from '@/lib/auth-utils';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 // Custom Wallet Icon components for styling
 const EthereumIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.32l6.18 9.5-6.18 9.5-6.18-9.5L12 2.32zM12 12.5l6.18-3.18-6.18-6-6.18 6L12 12.5z" fill="currentColor"/></svg>;
@@ -17,7 +19,7 @@ const SolanaIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none
 
 export function MultiChainSignIn() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState<null | 'ethereum' | 'solana'>(null);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // === Ethereum Hooks ===
@@ -26,7 +28,9 @@ export function MultiChainSignIn() {
   const { signMessageAsync: signEthMessage } = useSignMessage();
 
   // === Solana Hooks ===
-  const { publicKey: solPublicKey, connected: isSolConnected, signMessage: signSolMessage, connect: connectSol, select: selectSolWallet, wallet: solWallet } = useWallet();
+  const { publicKey: solPublicKey, connected: isSolConnected, signMessage: signSolMessage } = useWallet();
+  const { setVisible: setSolanaModalVisible, visible: isSolanaModalVisible } = useWalletModal();
+
 
   const handleEthereumSignIn = async (connector: any) => {
     setIsLoading(connector.id);
@@ -54,39 +58,44 @@ export function MultiChainSignIn() {
     }
   };
 
-  const handleSolanaSignIn = async () => {
-    setIsLoading('solana');
+  const handleSolanaSignIn = () => {
     setError(null);
-    try {
-      let publicKey = solPublicKey;
-      if (!isSolConnected) {
-        // This is a simplified flow. A better UX would involve a modal to select a wallet if multiple are installed.
-        if (solWallet) {
-          await connectSol();
-          publicKey = solWallet.adapter.publicKey;
-        } else {
-          // A bit of a hack to trigger the wallet selection modal if no wallet is pre-selected
-          selectSolWallet('Solflare' as any); 
-          throw new Error('Please select a Solana wallet and try again.');
-        }
+    setIsLoading('solana');
+    setSolanaModalVisible(true);
+  };
+
+  useEffect(() => {
+    const performSolanaSignIn = async () => {
+      if (!solPublicKey || !signSolMessage) return;
+      try {
+        const address = solPublicKey.toBase58();
+        const { message, nonce } = await createChallenge(address, 'solana');
+        const signedMessage = await signSolMessage(new TextEncoder().encode(message));
+        const signature = Buffer.from(signedMessage).toString('base64');
+
+        const result = await signIn('web3', { redirect: false, message, signature, address, chain: 'solana', nonce });
+        if (result?.error) throw new Error(result.error);
+
+        router.push('/dashboard');
+      } catch (err: any) {
+        setError(err.message || 'An error occurred with Solana sign-in.');
+      } finally {
+        setIsLoading(null);
+        setSolanaModalVisible(false);
       }
-      if (!publicKey || !signSolMessage) throw new Error('Could not connect to Solana wallet.');
-      const address = publicKey.toBase58();
+    };
 
-      const { message, nonce } = await createChallenge(address, 'solana');
-      const signedMessage = await signSolMessage(new TextEncoder().encode(message));
-      const signature = Buffer.from(signedMessage).toString('base64');
+    if (isLoading === 'solana' && isSolConnected) {
+      performSolanaSignIn();
+    }
+  }, [isLoading, isSolConnected, solPublicKey, signSolMessage]);
 
-      const result = await signIn('web3', { redirect: false, message, signature, address, chain: 'solana', nonce });
-      if (result?.error) throw new Error(result.error);
-
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred with Solana sign-in.');
-    } finally {
+  useEffect(() => {
+    if (isLoading === 'solana' && !isSolanaModalVisible && !isSolConnected) {
       setIsLoading(null);
     }
-  };
+  }, [isLoading, isSolanaModalVisible, isSolConnected]);
+  
 
   return (
     <div className="space-y-4">
