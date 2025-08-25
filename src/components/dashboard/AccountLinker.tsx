@@ -138,7 +138,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
             </Button>
           </div>
         ) : (
-                    {connectors.filter(c => c.id !== 'injected').map((connector) => (
+                    connectors.filter(c => c.id !== 'injected').map((connector) => (
             <Button key={connector.id} onClick={() => handleEthereumLink(connector)} disabled={!!isLoading} className="w-full flex justify-center items-center gap-3" variant="outline">
               {isLoading === `ethereum-${connector.id}` ? <Loader2 className="h-5 w-5 animate-spin" /> : <><EthereumIcon /> Link {connector.name}</>}
             </Button>
