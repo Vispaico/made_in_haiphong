@@ -9,7 +9,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  TorusWalletAdapter,
+  LedgerWalletAdapter,
+  CoinbaseWalletAdapter,
+  BraveWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Default styles for the Solana wallet modal
@@ -47,6 +54,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter({ network }),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new BraveWalletAdapter(),
     ],
     [network]
   );
@@ -55,7 +66,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets}>
+          <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider>
               {children}
             </WalletModalProvider>

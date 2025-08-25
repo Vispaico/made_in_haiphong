@@ -92,7 +92,7 @@ export function MultiChainSignIn() {
     <div className="space-y-4">
       {error && <p className="text-red-500/90 text-sm text-center p-2 bg-red-500/10 rounded-md">{error}</p>}
       
-      {connectors.map((connector) => (
+      {connectors.filter(c => c.id !== 'injected').map((connector) => (
         <Button
           key={connector.id}
           onClick={() => handleEthereumSignIn(connector)}
