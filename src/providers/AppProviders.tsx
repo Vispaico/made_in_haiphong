@@ -15,7 +15,6 @@ import {
   TorusWalletAdapter,
   LedgerWalletAdapter,
   CoinbaseWalletAdapter,
-  BraveWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
@@ -57,7 +56,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       new TorusWalletAdapter(),
       new LedgerWalletAdapter(),
       new CoinbaseWalletAdapter(),
-      new BraveWalletAdapter(),
     ],
     [network]
   );
