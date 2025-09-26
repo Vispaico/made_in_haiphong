@@ -4,9 +4,9 @@ import prisma from '@/lib/prisma';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import AdminListingActions from '@/components/admin/AdminListingActions';
+import Link from 'next/link';
 
 export default async function AdminManageListingsPage() {
-  // Fetch ALL listings from the database, including author details
   const allListings = await prisma.listing.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -19,45 +19,38 @@ export default async function AdminManageListingsPage() {
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-foreground">Manage All Listings</h1>
-      <p className="mt-2 text-lg text-foreground/70">View and delete any listing on the platform.</p>
+      <p className="mt-2 text-lg text-foreground/70">View, edit, or delete any listing on the platform.</p>
       
-      <div className="mt-8 overflow-x-auto rounded-lg border border-secondary bg-background">
-        <table className="min-w-full divide-y divide-secondary">
-          <thead className="bg-secondary">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Listing</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Author</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-foreground/80">Created</th>
-              <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-secondary">
-            {allListings.map((listing) => (
-              <tr key={listing.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <Image src={listing.imageUrls[0] || '/images/placeholder.png'} alt={listing.title} width={40} height={30} className="aspect-video rounded-md object-cover" />
-                    <div>
-                      <div className="font-semibold">{listing.title}</div>
-                      <div className="text-sm text-foreground/70">{listing.category}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-medium">{listing.author.name}</div>
-                  <div className="text-sm text-foreground/70">{listing.author.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground/70">
-                  {format(new Date(listing.createdAt), 'MMM d, yyyy')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {/* We will put the delete button here */}
-                  <AdminListingActions listingId={listing.id} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {allListings.map((listing) => (
+          <div key={listing.id} className="rounded-xl border border-secondary bg-background shadow-md overflow-hidden">
+            <div className="relative h-48 w-full">
+              <Image 
+                src={listing.imageUrls[0] || '/images/placeholder.png'} 
+                alt={listing.title} 
+                fill 
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-heading text-xl font-bold truncate">{listing.title}</h3>
+              <p className="text-sm text-foreground/70 capitalize">{listing.category}</p>
+              
+              <div className="mt-4 border-t border-secondary pt-4">
+                <p className="text-sm font-semibold">Author: {listing.author.name}</p>
+                <p className="text-xs text-foreground/60">{listing.author.email}</p>
+                <p className="text-xs text-foreground/60 mt-1">Posted: {format(new Date(listing.createdAt), 'MMM d, yyyy')}</p>
+              </div>
+
+              <div className="mt-4 flex justify-end gap-2">
+                <Link href={`/listings/${listing.id}`} className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-foreground/80 hover:bg-secondary/80">
+                  View
+                </Link>
+                <AdminListingActions listingId={listing.id} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

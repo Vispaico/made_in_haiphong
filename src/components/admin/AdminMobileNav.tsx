@@ -1,57 +1,58 @@
 // src/components/admin/AdminMobileNav.tsx
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { LayoutGrid, Users, Settings, Compass, X, LayoutList, Newspaper } from 'lucide-react';
-import LogoutButton from '../dashboard/LogoutButton'; // We can reuse the same logout button
+import Image from 'next/image';
+import { Menu, X, Shield } from 'lucide-react';
 
-const adminNavLinks = [
-  { href: '/admin', label: 'Manage Listings', icon: LayoutGrid },
-  { href: '/admin/users', label: 'Manage Users', icon: Users },
-  { href: '/admin/explore', label: 'Manage Explore', icon: Compass },
-  { href: '/admin/categories', label: 'Manage Categories', icon: LayoutList },
-  { href: '/admin/articles', label: 'Manage Articles', icon: Newspaper },
-  { href: '/admin/settings', label: 'Admin Settings', icon: Settings },
-];
+type NavLink = {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+};
 
 interface AdminMobileNavProps {
-  isOpen: boolean;
-  onClose: () => void;
+  navLinks: NavLink[];
 }
 
-export default function AdminMobileNav({ isOpen, onClose }: AdminMobileNavProps) {
-  if (!isOpen) {
-    return null;
-  }
+export default function AdminMobileNav({ navLinks }: AdminMobileNavProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background md:hidden">
-      <div className="flex h-full flex-col p-4">
-        <div className="flex items-center justify-between">
-          <span className="font-heading text-lg font-bold text-red-500">Admin Menu</span>
-          <button onClick={onClose}>
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        
-        <nav className="mt-8 flex flex-grow flex-col space-y-2">
-          {adminNavLinks.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              onClick={onClose}
-              className="flex items-center gap-3 rounded-md px-3 py-3 text-lg font-medium text-foreground/80 transition-colors hover:bg-secondary"
-            >
-              <link.icon className="h-6 w-6" />
-              <span>{link.label}</span>
-            </Link>
-          ))}
-        </nav>
+    <div className="md:hidden">
+      <button onClick={() => setIsOpen(true)} className="p-2 text-foreground/80">
+        <Menu className="h-6 w-6" />
+      </button>
 
-        <div className="mt-auto">
-          <LogoutButton />
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm">
+          <div className="flex h-full flex-col p-6">
+            <div className="mb-8 flex items-center justify-between">
+              <Link href="/admin" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-red-500">
+                <Shield className="h-6 w-6" />
+                <span className="font-heading text-lg font-bold">Admin Panel</span>
+              </Link>
+              <button onClick={() => setIsOpen(false)} className="p-2">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <nav className="flex flex-col space-y-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-4 rounded-lg p-3 text-lg font-medium text-foreground/80 hover:bg-secondary"
+                >
+                  <link.icon className="h-6 w-6" />
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

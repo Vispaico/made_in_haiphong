@@ -4,16 +4,16 @@
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 
-// This is a wrapper component that will dynamically import the actual Map component.
-// This is the standard way to use Leaflet with Next.js App Router to avoid SSR issues.
-export default function Map({ location }: { location: [number, number] }) {
+// This wrapper component now accepts listings and passes them down.
+export default function Map({ location, listings }: { location: [number, number], listings?: any[] }) {
   const MapDisplay = useMemo(() => dynamic(
     () => import('@/components/common/MapDisplay'),
     { 
       loading: () => <div className="h-full w-full bg-secondary animate-pulse rounded-lg" />,
-      ssr: false // This is the crucial part - we disable Server-Side Rendering for the map.
+      ssr: false
     }
-  ), [location]);
+  ), [location, listings]); // Dependency array includes listings now
   
-  return <MapDisplay location={location} />;
+  // Pass both location and listings to the display component
+  return <MapDisplay location={location} listings={listings} />;
 }

@@ -2,12 +2,14 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   LayoutDashboard, User, MessageSquare, ShoppingBag, 
-  Heart, Star, Settings, ShipWheel, PlusCircle, Zap, Shield
+  Heart, Star, Settings, Shield, PlusCircle, Zap, Gem
 } from 'lucide-react';
 import LogoutButton from '@/components/dashboard/LogoutButton';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import UserButton from '@/components/auth/UserButton';
 
 const iconMap = {
   LayoutDashboard,
@@ -18,6 +20,7 @@ const iconMap = {
   Heart,
   Settings,
   Shield,
+  Gem,
 };
 
 export default async function DashboardLayout({
@@ -35,31 +38,30 @@ export default async function DashboardLayout({
     { href: '/dashboard/listings', label: 'My Listings', icon: 'ShoppingBag' },
     { href: '/dashboard/bookings', label: 'My Bookings', icon: 'Star' },
     { href: '/dashboard/saved', label: 'Saved Items', icon: 'Heart' },
-    { href: '/dashboard/settings', label: 'Settings', icon: 'Settings' },
+    { href: '/dashboard/loyalty', label: 'Loyalty Points', icon: 'Gem' },
   ];
 
-  // Conditionally add the Admin link
   if (isAdmin) {
-    dashboardNavLinks.push({ href: '/admin', label: 'Admin Dashboard', icon: 'Shield' });
+    dashboardNavLinks.push({ href: '/admin', label: 'Admin Panel', icon: 'Shield' });
   }
 
   return (
     <div className="flex min-h-screen bg-secondary">
-      <aside className="hidden w-64 flex-col border-r border-secondary bg-background p-4 md:flex">
+      {/* Desktop Sidebar */}
+      <aside className="hidden w-72 flex-col border-r border-secondary bg-background p-6 md:flex">
         <div className="mb-8">
-          <Link href="/" className="flex items-center gap-2 text-foreground">
-            <ShipWheel className="h-6 w-6 text-primary" />
-            <span className="font-heading text-lg font-bold">Made in Haiphong</span>
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/MadeInHaiphong_logo.svg" alt="Logo" width={160} height={40} />
           </Link>
         </div>
         
-        <div className="mb-6">
+        <div className="mb-8">
           <Link 
             href="/dashboard/listings/new"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-bold text-white shadow-md transition-transform hover:scale-105"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-bold text-white shadow-lg transition-transform hover:bg-primary/90 hover:scale-105"
           >
             <PlusCircle className="h-5 w-5" />
-            <span>Create Listing</span>
+            <span>Create New Listing</span>
           </Link>
         </div>
 
@@ -70,30 +72,30 @@ export default async function DashboardLayout({
               <Link 
                 key={link.href} 
                 href={link.href}
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
+                className="flex items-center gap-4 rounded-md px-4 py-2 text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
               >
-                <Icon className="h-5 w-5" />
-                <span>{link.label}</span>
+                <Icon className="h-6 w-6" />
+                <span className="font-medium">{link.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* THE FIX: Added a new, distinct "Upgrade" link at the bottom */}
-        <div className="mt-auto flex flex-col space-y-2 border-t border-secondary pt-4">
+        <div className="mt-auto flex flex-col space-y-4 border-t border-secondary pt-6">
           <Link 
-            href="/dashboard/upgrade"
-            className="flex items-center gap-3 rounded-md bg-yellow-500/10 px-3 py-2 text-yellow-600 transition-colors hover:bg-yellow-500/20"
+            href="/dashboard/settings"
+            className="flex items-center gap-4 rounded-md px-4 py-2 text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
           >
-            <Zap className="h-5 w-5" />
-            <span className="font-semibold">Upgrade to Premium</span>
+            <Settings className="h-6 w-6" />
+            <span className="font-medium">Settings</span>
           </Link>
           <LogoutButton />
         </div>
       </aside>
 
+      {/* Mobile Header & Main Content */}
       <div className="flex flex-1 flex-col">
-        <DashboardHeader navLinks={dashboardNavLinks} />
+        <DashboardHeader session={session} navLinks={dashboardNavLinks} />
         <main className="flex-grow p-4 md:p-8">
           {children}
         </main>

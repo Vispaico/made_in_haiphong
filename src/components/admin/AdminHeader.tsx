@@ -1,29 +1,23 @@
 // src/components/admin/AdminHeader.tsx
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import UserButton from '@/components/auth/UserButton';
 import AdminMobileNav from './AdminMobileNav';
 
+// This component is now simplified, as the main logic is in the layout.
+// It primarily serves as a container for the right-aligned user button on desktop.
 export default function AdminHeader() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   return (
-    <>
-      <header className="sticky top-0 z-40 border-b border-secondary bg-background/90 p-4 backdrop-blur-sm md:hidden">
-        <div className="flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-2 text-red-500">
-            <Shield className="h-6 w-6" />
-            <span className="font-heading text-lg font-bold">Admin</span>
-          </Link>
-          <button onClick={() => setIsMenuOpen(true)}>
-            <Menu className="h-6 w-6" />
-          </button>
-        </div>
-      </header>
-      
-      <AdminMobileNav isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-    </>
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-secondary bg-background px-4 md:justify-end">
+      {/* The mobile nav is now part of the layout and receives its links there */}
+      <div className="md:hidden">
+        {/* This space is intentionally left for the mobile nav trigger, which is in the layout */}
+      </div>
+      <div className="flex items-center gap-4">
+        <UserButton />
+      </div>
+    </header>
   );
 }

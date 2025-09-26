@@ -1,8 +1,9 @@
 // src/app/(main)/layout.tsx
 
-import Header from '@/components/common/Header'; // THE FIX: Import the correct, existing Header component
+import Header from '@/components/common/Header';
 import NewFooter from '@/components/common/NewFooter';
 import AnnouncementBanner from '@/components/common/AnnouncementBanner';
+import MobileBottomNav from '@/components/common/MobileBottomNav';
 
 export default function MainLayout({
   children,
@@ -13,13 +14,14 @@ export default function MainLayout({
     <div className="flex min-h-screen flex-col">
       <AnnouncementBanner />
       
-      {/* THE FIX: Use the correct Header component */}
       <Header />
       
-      <main className="flex-grow">
+      <main className="flex-grow pb-16 md:pb-0">
         {children}
       </main>
+      
       <NewFooter />
+      <MobileBottomNav />
     </div>
   );
 }
