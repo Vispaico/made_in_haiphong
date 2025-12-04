@@ -7,10 +7,10 @@ import { Article } from '@prisma/client';
 import { useForm, Controller } from 'react-hook-form';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/Button';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import slugify from 'slugify';
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 type ArticleFormData = {
   title: string;
