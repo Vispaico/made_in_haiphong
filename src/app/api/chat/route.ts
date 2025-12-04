@@ -1,6 +1,6 @@
 // src/app/api/chat/route.ts
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GoogleGenerativeAIStream, Message } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { convertToCoreMessages, jsonSchema, streamText } from 'ai';
 import { myTravelSDK } from '@/lib/myTravelSDK';
 
 // IMPORTANT! Set the runtime to edge
@@ -10,7 +10,7 @@ export const runtime = 'edge';
 const tools = {
   searchTransport: {
     description: 'Search for transportation options like flights or buses to a destination on a specific date.',
-    parameters: {
+    parameters: jsonSchema({
       type: 'object',
       properties: {
         destination: {
@@ -23,14 +23,14 @@ const tools = {
         },
       },
       required: ['destination', 'date'],
-    },
-    function: async ({ destination, date }: { destination: string; date: string }) => {
+    }),
+    execute: async ({ destination, date }: { destination: string; date: string }) => {
       return await myTravelSDK.searchTransport({ destination, date });
     },
   },
   bookAccommodation: {
     description: 'Book a place to stay, like a hotel or villa, in a specific location for given dates.',
-    parameters: {
+    parameters: jsonSchema({
       type: 'object',
       properties: {
         location: {
@@ -47,14 +47,14 @@ const tools = {
         },
       },
       required: ['location', 'checkIn', 'checkOut'],
-    },
-    function: async ({ location, checkIn, checkOut }: { location: string; checkIn: string; checkOut: string }) => {
+    }),
+    execute: async ({ location, checkIn, checkOut }: { location: string; checkIn: string; checkOut: string }) => {
       return await myTravelSDK.bookAccommodation({ location, checkIn, checkOut });
     },
   },
   findDining: {
     description: 'Find dining recommendations for a specific type of cuisine in a certain area.',
-    parameters: {
+    parameters: jsonSchema({
       type: 'object',
       properties: {
         cuisine: {
@@ -67,33 +67,25 @@ const tools = {
         },
       },
       required: ['cuisine', 'area'],
-    },
-    function: async ({ cuisine, area }: { cuisine: string; area: string }) => {
+    }),
+    execute: async ({ cuisine, area }: { cuisine: string; area: string }) => {
       return await myTravelSDK.findDining({ cuisine, area });
     },
   },
 };
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_API_KEY || '',
+});
 
 export async function POST(req: Request) {
-  const { messages }: { messages: Message[] } = await req.json();
+  const { messages } = await req.json();
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    // @ts-ignore - The `tools` property is not yet in the official SDK types
-    tools: tools,
+  const result = await streamText({
+    model: google('gemini-1.5-flash'),
+    tools,
+    messages: convertToCoreMessages(messages),
   });
 
-  const stream = await model.generateContentStream({
-    contents: messages.map((msg) => ({
-      role: msg.role,
-      parts: [{ text: msg.content }],
-    })),
-  });
-
-  const aiStream = GoogleGenerativeAIStream(stream);
-
-  // Respond with the stream
-  return new Response(aiStream);
+  return result.toUIMessageStreamResponse();
 }

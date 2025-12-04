@@ -1,7 +1,7 @@
 // src/components/ui/ChatInterface.tsx
 'use client';
 
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Send } from 'lucide-react';
