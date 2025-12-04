@@ -13,11 +13,16 @@ import Image from 'next/image';
 // THE FIX: Add Incremental Static Regeneration
 export const revalidate = 60;
 
-export default async function PostDetailPage({ params }: { params: { post_id: string } }) {
+type PostDetailPageProps = {
+  params: Promise<{ post_id: string }>;
+};
+
+export default async function PostDetailPage({ params }: PostDetailPageProps) {
+  const { post_id } = await params;
   const session = await getServerSession(authOptions);
 
   const post = await prisma.post.findUnique({
-    where: { id: params.post_id },
+    where: { id: post_id },
     include: {
       author: { select: { id: true, name: true, image: true } },
       comments: {

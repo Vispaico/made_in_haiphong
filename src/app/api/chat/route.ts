@@ -10,7 +10,7 @@ export const runtime = 'edge';
 const tools = {
   searchTransport: {
     description: 'Search for transportation options like flights or buses to a destination on a specific date.',
-    parameters: jsonSchema({
+    inputSchema: jsonSchema({
       type: 'object',
       properties: {
         destination: {
@@ -30,7 +30,7 @@ const tools = {
   },
   bookAccommodation: {
     description: 'Book a place to stay, like a hotel or villa, in a specific location for given dates.',
-    parameters: jsonSchema({
+    inputSchema: jsonSchema({
       type: 'object',
       properties: {
         location: {
@@ -54,7 +54,7 @@ const tools = {
   },
   findDining: {
     description: 'Find dining recommendations for a specific type of cuisine in a certain area.',
-    parameters: jsonSchema({
+    inputSchema: jsonSchema({
       type: 'object',
       properties: {
         cuisine: {

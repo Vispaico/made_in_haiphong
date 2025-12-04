@@ -5,14 +5,19 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type ListingRouteContext = {
+  params: Promise<{ listingId: string }>;
+};
+
 // GET handler to fetch a single listing
 export async function GET(
   req: Request,
-  { params }: { params: { listingId: string } }
+  { params }: ListingRouteContext
 ) {
+  const { listingId } = await params;
   try {
     const listing = await prisma.listing.findUnique({
-      where: { id: params.listingId },
+      where: { id: listingId },
     });
 
     if (!listing) {
@@ -28,15 +33,16 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { listingId: string } }
+  { params }: ListingRouteContext
 ) {
+  const { listingId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
   try {
-    const listing = await prisma.listing.findUnique({ where: { id: params.listingId } });
+    const listing = await prisma.listing.findUnique({ where: { id: listingId } });
     if (!listing || listing.authorId !== session.user.id) {
       return new NextResponse('Forbidden', { status: 403 });
     }
@@ -46,7 +52,7 @@ export async function PATCH(
     const { title, description, category, price, imageUrls, maxGuests, bedrooms, latitude, longitude } = body;
 
     const updatedListing = await prisma.listing.update({
-      where: { id: params.listingId },
+      where: { id: listingId },
       data: {
         title, description, category,
         price: parseFloat(price),
@@ -68,8 +74,9 @@ export async function PATCH(
 // DELETE handler remains the same
 export async function DELETE(
   req: Request,
-  { params }: { params: { listingId: string } }
+  { params }: ListingRouteContext
 ) {
+  const { listingId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -78,7 +85,7 @@ export async function DELETE(
 
   try {
     const listing = await prisma.listing.findUnique({
-      where: { id: params.listingId },
+      where: { id: listingId },
     });
 
     if (!listing || listing.authorId !== session.user.id) {
@@ -86,7 +93,7 @@ export async function DELETE(
     }
 
     await prisma.listing.delete({
-      where: { id: params.listingId },
+      where: { id: listingId },
     });
 
     return new NextResponse(null, { status: 204 });

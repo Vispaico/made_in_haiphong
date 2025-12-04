@@ -25,11 +25,16 @@ const getListingsByCategory = cache(async (category: string) => {
   return listings;
 });
 
-export default async function MarketplaceCategoryPage({ params }: { params: { category: string } }) {
-  const category = categoryInfo[params.category];
+type MarketplaceCategoryPageProps = {
+  params: Promise<{ category: string }>;
+};
+
+export default async function MarketplaceCategoryPage({ params }: MarketplaceCategoryPageProps) {
+  const { category: categoryParam } = await params;
+  const category = categoryInfo[categoryParam];
   if (!category) notFound();
 
-  const listings = await getListingsByCategory(params.category);
+  const listings = await getListingsByCategory(categoryParam);
 
   return (
     <div className="bg-background py-16">

@@ -5,11 +5,16 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type PostRouteContext = {
+  params: Promise<{ postId: string }>;
+};
+
 // This new PATCH handler will update a post
 export async function PATCH(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: PostRouteContext
 ) {
+  const { postId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -18,7 +23,7 @@ export async function PATCH(
 
   try {
     const post = await prisma.post.findUnique({
-      where: { id: params.postId },
+      where: { id: postId },
     });
 
     // Security check: ensure the user owns this post
@@ -29,7 +34,7 @@ export async function PATCH(
     const { content, imageUrls } = await req.json();
 
     const updatedPost = await prisma.post.update({
-      where: { id: params.postId },
+      where: { id: postId },
       data: {
         content,
         imageUrls,
@@ -46,8 +51,9 @@ export async function PATCH(
 // Your existing DELETE handler remains unchanged
 export async function DELETE(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: PostRouteContext
 ) {
+  const { postId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -55,7 +61,6 @@ export async function DELETE(
   }
 
   try {
-    const postId = params.postId;
     const userId = session.user.id;
 
     const post = await prisma.post.findUnique({

@@ -6,10 +6,15 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { SubscriptionStatus } from '@prisma/client';
 
+type UserRouteContext = {
+  params: Promise<{ userId: string }>;
+};
+
 export async function PATCH(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: UserRouteContext
 ) {
+  const { userId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id || session.user.isAdmin !== true) {
@@ -17,7 +22,7 @@ export async function PATCH(
   }
 
   try {
-    const targetUserId = params.userId;
+    const targetUserId = userId;
     const body = await req.json();
     const { isAdmin, subscriptionStatus } = body;
 

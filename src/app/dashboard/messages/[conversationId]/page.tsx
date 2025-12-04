@@ -9,7 +9,12 @@ import Link from 'next/link';
 import ChatInput from '@/components/dashboard/ChatInput';
 import MessageList from '@/components/dashboard/MessageList'; // We will create a new client component for the messages
 
-export default async function ConversationPage({ params }: { params: { conversationId: string } }) {
+type ConversationPageProps = {
+  params: Promise<{ conversationId: string }>;
+};
+
+export default async function ConversationPage({ params }: ConversationPageProps) {
+  const { conversationId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/login');
@@ -17,7 +22,7 @@ export default async function ConversationPage({ params }: { params: { conversat
 
   const conversation = await prisma.conversation.findUnique({
     where: {
-      id: params.conversationId,
+      id: conversationId,
       participants: {
         some: { id: session.user.id },
       },

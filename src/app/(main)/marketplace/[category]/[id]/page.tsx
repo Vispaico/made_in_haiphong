@@ -13,11 +13,16 @@ import Image from 'next/image';
 // THE FIX: Add Incremental Static Regeneration to cache this page.
 export const revalidate = 60; // Revalidate every 60 seconds
 
-export default async function MarketplaceDetailPage({ params }: { params: { id: string } }) {
+type MarketplaceDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function MarketplaceDetailPage({ params }: MarketplaceDetailPageProps) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   
   const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       author: { select: { id: true, name: true, image: true, emailVerified: true } },
       savedBy: { where: { userId: session?.user?.id }, select: { userId: true } },

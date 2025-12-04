@@ -5,10 +5,15 @@ import { notFound } from 'next/navigation';
 import EditExploreForm from '@/components/admin/EditExploreForm';
 
 // This is the Server Component that fetches the data for the form.
-export default async function EditExploreEntryPage({ params }: { params: { entryId: string } }) {
+type EditExploreEntryPageProps = {
+  params: Promise<{ entryId: string }>;
+};
+
+export default async function EditExploreEntryPage({ params }: EditExploreEntryPageProps) {
+  const { entryId } = await params;
   const entry = await prisma.exploreEntry.findUnique({
     where: {
-      id: params.entryId,
+      id: entryId,
     },
   });
 

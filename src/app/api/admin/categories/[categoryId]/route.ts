@@ -5,11 +5,16 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type CategoryRouteContext = {
+  params: Promise<{ categoryId: string }>;
+};
+
 // PATCH handler to update a category
 export async function PATCH(
   req: Request,
-  { params }: { params: { categoryId: string } }
+  { params }: CategoryRouteContext
 ) {
+  const { categoryId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -18,7 +23,7 @@ export async function PATCH(
   try {
     const { name, slug, type } = await req.json();
     const updatedCategory = await prisma.category.update({
-      where: { id: params.categoryId },
+      where: { id: categoryId },
       data: { name, slug, type },
     });
     return NextResponse.json(updatedCategory);
@@ -31,8 +36,9 @@ export async function PATCH(
 // DELETE handler to remove a category
 export async function DELETE(
   req: Request,
-  { params }: { params: { categoryId: string } }
+  { params }: CategoryRouteContext
 ) {
+  const { categoryId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -40,7 +46,7 @@ export async function DELETE(
 
   try {
     await prisma.category.delete({
-      where: { id: params.categoryId },
+      where: { id: categoryId },
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {

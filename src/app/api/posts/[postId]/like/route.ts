@@ -5,10 +5,15 @@ import { authOptions } from '@/lib/auth'; // <-- THE FINAL CORRECTED IMPORT PATH
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type PostLikeRouteContext = {
+  params: Promise<{ postId: string }>;
+};
+
 export async function POST(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: PostLikeRouteContext
 ) {
+  const { postId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -16,7 +21,6 @@ export async function POST(
   }
   
   const userId = session.user.id;
-  const postId = params.postId;
 
   try {
     // Check if the user has already liked this post

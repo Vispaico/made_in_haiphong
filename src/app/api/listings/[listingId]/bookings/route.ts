@@ -3,15 +3,20 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type ListingBookingRouteContext = {
+  params: Promise<{ listingId: string }>;
+};
+
 // GET handler to fetch all confirmed booking dates for a listing
 export async function GET(
   req: Request,
-  { params }: { params: { listingId: string } }
+  { params }: ListingBookingRouteContext
 ) {
+  const { listingId } = await params;
   try {
     const bookings = await prisma.booking.findMany({
       where: {
-        listingId: params.listingId,
+        listingId,
         status: 'CONFIRMED', // Only fetch confirmed bookings
       },
       select: {

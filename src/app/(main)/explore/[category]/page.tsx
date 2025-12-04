@@ -13,12 +13,17 @@ const categoryInfo: { [key: string]: { name: string; description: string } } = {
   'city-essentials': { name: 'City Essentials', description: 'Find everything you need in the city.' },
 };
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
-  const category = categoryInfo[params.category];
+type ExploreCategoryPageProps = {
+  params: Promise<{ category: string }>;
+};
+
+export default async function CategoryPage({ params }: ExploreCategoryPageProps) {
+  const { category: categoryParam } = await params;
+  const category = categoryInfo[categoryParam];
   if (!category) notFound();
 
   const entries = await prisma.exploreEntry.findMany({
-    where: { category: params.category },
+    where: { category: categoryParam },
     orderBy: { createdAt: 'desc' },
   });
 

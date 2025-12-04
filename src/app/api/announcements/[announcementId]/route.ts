@@ -5,11 +5,16 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type AnnouncementRouteContext = {
+  params: Promise<{ announcementId: string }>;
+};
+
 // PATCH handler to update an announcement (e.g., change its message or active status)
 export async function PATCH(
   req: Request,
-  { params }: { params: { announcementId: string } }
+  { params }: AnnouncementRouteContext
 ) {
+  const { announcementId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -18,7 +23,7 @@ export async function PATCH(
   try {
     const { message, isActive } = await req.json();
     const updatedAnnouncement = await prisma.announcement.update({
-      where: { id: params.announcementId },
+      where: { id: announcementId },
       data: { message, isActive },
     });
     return NextResponse.json(updatedAnnouncement);
@@ -31,8 +36,9 @@ export async function PATCH(
 // DELETE handler to remove an announcement
 export async function DELETE(
   req: Request,
-  { params }: { params: { announcementId: string } }
+  { params }: AnnouncementRouteContext
 ) {
+  const { announcementId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -40,7 +46,7 @@ export async function DELETE(
 
   try {
     await prisma.announcement.delete({
-      where: { id: params.announcementId },
+      where: { id: announcementId },
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {

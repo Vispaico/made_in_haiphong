@@ -7,7 +7,12 @@ import { notFound, redirect } from 'next/navigation';
 import EditPostForm from '@/components/community/EditPostForm';
 
 // This Server Component fetches the post data
-export default async function EditPostPage({ params }: { params: { post_id: string } }) {
+type EditPostPageProps = {
+  params: Promise<{ post_id: string }>;
+};
+
+export default async function EditPostPage({ params }: EditPostPageProps) {
+  const { post_id } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -16,7 +21,7 @@ export default async function EditPostPage({ params }: { params: { post_id: stri
 
   const post = await prisma.post.findUnique({
     where: {
-      id: params.post_id,
+      id: post_id,
       // Security check: ensure the current user is the author
       authorId: session.user.id,
     },

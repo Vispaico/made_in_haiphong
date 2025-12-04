@@ -3,16 +3,15 @@ import { notFound } from 'next/navigation';
 import db from '@/lib/prisma';
 import ArticleForm from '@/components/admin/ArticleForm';
 
-interface EditArticlePageProps {
-  params: {
-    articleId: string;
-  };
-}
+type EditArticlePageProps = {
+  params: Promise<{ articleId: string }>;
+};
 
 export default async function EditArticlePage({ params }: EditArticlePageProps) {
+  const { articleId } = await params;
   const article = await db.article.findUnique({
     where: {
-      id: params.articleId,
+      id: articleId,
     },
   });
 

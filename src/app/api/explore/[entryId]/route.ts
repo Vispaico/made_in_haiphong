@@ -5,11 +5,16 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type ExploreEntryRouteContext = {
+  params: Promise<{ entryId: string }>;
+};
+
 // GET handler to fetch a single explore entry for the edit page
 export async function GET(
   _req: Request, // Use _req as it's not directly used
-  { params }: { params: { entryId: string } }
+  { params }: ExploreEntryRouteContext
 ) {
+  const { entryId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -17,7 +22,7 @@ export async function GET(
 
   try {
     const entry = await prisma.exploreEntry.findUnique({
-      where: { id: params.entryId }, // params is used here
+      where: { id: entryId }, // params is used here
     });
     if (!entry) {
       return new NextResponse('Not Found', { status: 404 });
@@ -32,8 +37,9 @@ export async function GET(
 // PATCH handler to update an explore entry
 export async function PATCH(
   req: Request,
-  { params }: { params: { entryId: string } }
+  { params }: ExploreEntryRouteContext
 ) {
+  const { entryId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -44,7 +50,7 @@ export async function PATCH(
     const { title, description, body: contentBody, category, imageUrls, address, latitude, longitude } = body;
 
     const updatedEntry = await prisma.exploreEntry.update({
-      where: { id: params.entryId }, // params is used here
+      where: { id: entryId }, // params is used here
       data: {
         title, description,
         body: contentBody,
@@ -63,8 +69,9 @@ export async function PATCH(
 // DELETE handler to remove an explore entry
 export async function DELETE(
   _req: Request, // Use _req as it's not directly used
-  { params }: { params: { entryId: string } }
+  { params }: ExploreEntryRouteContext
 ) {
+  const { entryId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -72,7 +79,7 @@ export async function DELETE(
 
   try {
     await prisma.exploreEntry.delete({
-      where: { id: params.entryId }, // params is used here
+      where: { id: entryId }, // params is used here
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {

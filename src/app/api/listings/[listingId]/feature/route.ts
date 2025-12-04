@@ -5,10 +5,15 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type ListingFeatureRouteContext = {
+  params: Promise<{ listingId: string }>;
+};
+
 export async function PATCH(
   req: Request,
-  { params }: { params: { listingId: string } }
+  { params }: ListingFeatureRouteContext
 ) {
+  const { listingId } = await params;
   const session = await getServerSession(authOptions);
 
   // 1. Authenticate the user
@@ -30,7 +35,7 @@ export async function PATCH(
 
     // 3. Find the listing to ensure it exists and is owned by the user
     const listingToFeature = await prisma.listing.findUnique({
-      where: { id: params.listingId },
+      where: { id: listingId },
     });
 
     if (!listingToFeature || listingToFeature.authorId !== userId) {
@@ -45,7 +50,7 @@ export async function PATCH(
 
     // 5. Update the listing
     const updatedListing = await prisma.listing.update({
-      where: { id: params.listingId },
+      where: { id: listingId },
       data: { isFeatured },
     });
 

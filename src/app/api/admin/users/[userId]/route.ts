@@ -5,10 +5,15 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type AdminUserRouteContext = {
+  params: Promise<{ userId: string }>;
+};
+
 export async function PATCH(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: AdminUserRouteContext
 ) {
+  const { userId } = await params;
   const session = await getServerSession(authOptions);
 
   // 1. Authenticate and authorize the user: Must be an admin
@@ -17,7 +22,7 @@ export async function PATCH(
   }
 
   try {
-    const targetUserId = params.userId;
+    const targetUserId = userId;
     const { isAdmin } = await req.json();
 
     // 2. Validate input: `isAdmin` must be a boolean

@@ -14,11 +14,16 @@ import Image from 'next/image';
 // THE FIX: Add Incremental Static Regeneration
 export const revalidate = 60;
 
-export default async function StayDetailPage({ params }: { params: { id: string } }) {
+type StayDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function StayDetailPage({ params }: StayDetailPageProps) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   
   const accommodation = await prisma.listing.findUnique({
-    where: { id: params.id, category: 'accommodation' },
+    where: { id, category: 'accommodation' },
     include: {
       author: { select: { id: true, name: true, image: true, emailVerified: true } },
       savedBy: { where: { userId: session?.user?.id }, select: { userId: true } },

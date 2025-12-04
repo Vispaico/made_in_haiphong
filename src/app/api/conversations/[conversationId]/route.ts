@@ -5,10 +5,15 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type ConversationRouteContext = {
+  params: Promise<{ conversationId: string }>;
+};
+
 export async function POST(
   req: Request,
-  { params }: { params: { conversationId: string } }
+  { params }: ConversationRouteContext
 ) {
+  const { conversationId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -17,7 +22,6 @@ export async function POST(
 
   try {
     const { body } = await req.json();
-    const { conversationId } = params;
     const userId = session.user.id;
 
     if (!body || typeof body !== 'string' || body.trim().length === 0) {

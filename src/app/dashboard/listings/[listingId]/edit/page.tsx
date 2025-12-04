@@ -7,7 +7,12 @@ import { notFound, redirect } from 'next/navigation';
 import EditListingForm from '@/components/dashboard/EditListingForm';
 
 // This is a Server Component that fetches the data for the form.
-export default async function EditListingPage({ params }: { params: { listingId: string } }) {
+type EditListingPageProps = {
+  params: Promise<{ listingId: string }>;
+};
+
+export default async function EditListingPage({ params }: EditListingPageProps) {
+  const { listingId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -16,7 +21,7 @@ export default async function EditListingPage({ params }: { params: { listingId:
 
   const listing = await prisma.listing.findUnique({
     where: {
-      id: params.listingId,
+      id: listingId,
       // Security check: ensure the user owns this listing
       authorId: session.user.id,
     },

@@ -5,10 +5,15 @@ import db from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
+type ArticleRouteContext = {
+  params: Promise<{ articleId: string }>;
+};
+
 export async function PUT(
   req: Request,
-  { params }: { params: { articleId: string } }
+  { params }: ArticleRouteContext
 ) {
+  const { articleId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -23,7 +28,7 @@ export async function PUT(
     }
 
     const article = await db.article.update({
-      where: { id: params.articleId },
+      where: { id: articleId },
       data: {
         title,
         slug,
@@ -48,8 +53,9 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { articleId: string } }
+  { params }: ArticleRouteContext
 ) {
+  const { articleId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.isAdmin) {
     return new NextResponse('Unauthorized', { status: 401 });
@@ -57,7 +63,7 @@ export async function DELETE(
 
   try {
     const article = await db.article.delete({
-      where: { id: params.articleId },
+      where: { id: articleId },
     });
     
     revalidatePath('/articles');

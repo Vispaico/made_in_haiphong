@@ -5,10 +5,15 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+type PostCommentsRouteContext = {
+  params: Promise<{ postId: string }>;
+};
+
 export async function POST(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: PostCommentsRouteContext
 ) {
+  const { postId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -23,7 +28,7 @@ export async function POST(
     }
 
     const post = await prisma.post.findUnique({
-      where: { id: params.postId },
+      where: { id: postId },
       select: { authorId: true }
     });
 
@@ -35,7 +40,7 @@ export async function POST(
       data: {
         text: text,
         authorId: session.user.id,
-        postId: params.postId,
+        postId,
       },
     });
 
@@ -46,7 +51,7 @@ export async function POST(
           type: 'NEW_COMMENT',
           userId: post.authorId,        // The notification is FOR the post author
           initiatorId: session.user.id, // The notification is FROM the commenter
-          link: `/community/${params.postId}`,
+          link: `/community/${postId}`,
         },
       });
     }

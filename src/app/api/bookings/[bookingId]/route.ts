@@ -6,10 +6,15 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { BookingStatus } from '@prisma/client';
 
+type BookingRouteContext = {
+  params: Promise<{ bookingId: string }>;
+};
+
 export async function PATCH(
   req: Request,
-  { params }: { params: { bookingId: string } }
+  { params }: BookingRouteContext
 ) {
+  const { bookingId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -18,7 +23,6 @@ export async function PATCH(
 
   try {
     const { status } = await req.json();
-    const { bookingId } = params;
     const userId = session.user.id;
 
     if (!status || !Object.values(BookingStatus).includes(status)) {

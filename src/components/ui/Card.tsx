@@ -9,9 +9,10 @@ interface CardProps {
   imageUrls: string[];
   title: string;
   description: string;
+  price?: number | string;
 }
 
-export default function Card({ href, imageUrls, title, description }: CardProps) {
+export default function Card({ href, imageUrls, title, description, price }: CardProps) {
   const previewImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : '/images/placeholder.png';
   const imageCount = imageUrls ? imageUrls.length : 0;
 
@@ -39,6 +40,13 @@ export default function Card({ href, imageUrls, title, description }: CardProps)
           {/* THE FIX: Improved visual hierarchy. Title is larger and description is smaller and more subtle. */}
           <h3 className="font-heading text-lg font-bold leading-tight text-foreground sm:text-xl">{title}</h3>
           <p className="mt-2 text-sm text-foreground/70">{description}</p>
+          {price !== undefined && (
+            <p className="mt-3 text-sm font-semibold text-primary">
+              {typeof price === 'number'
+                ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+                : price}
+            </p>
+          )}
         </div>
       </div>
     </Link>

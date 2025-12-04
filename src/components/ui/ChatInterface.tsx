@@ -2,12 +2,36 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
+import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Send } from 'lucide-react';
 
 export function ChatInterface() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, sendMessage, status } = useChat();
+  const [input, setInput] = useState('');
+
+  const getMessageText = (message: (typeof messages)[number]) =>
+    message.parts
+      .map((part) => {
+        if (part.type === 'text' || part.type === 'reasoning') {
+          return part.text;
+        }
+        if (part.type === 'tool-result' && 'output' in part && typeof part.output === 'string') {
+          return part.output;
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n');
+
+  const handleSubmit = async (event?: FormEvent) => {
+    event?.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    await sendMessage({ text: trimmed });
+    setInput('');
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-10rem)] w-full max-w-3xl mx-auto bg-secondary rounded-lg shadow-md">
@@ -22,7 +46,7 @@ export function ChatInterface() {
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-lg p-3 rounded-lg ${m.role === 'user' ? 'bg-primary text-background' : 'bg-background text-foreground'}`}>
               <p className="font-semibold capitalize">{m.role}</p>
-              <p>{m.content}</p>
+              <p>{getMessageText(m)}</p>
             </div>
           </div>
         ))}
@@ -32,9 +56,10 @@ export function ChatInterface() {
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <Input
             value={input}
-            onChange={handleInputChange}
+            onChange={(event) => setInput(event.target.value)}
             placeholder="Ask about flights, hotels, or restaurants..."
             className="flex-1"
+            disabled={status === 'streaming'}
           />
           <Button type="submit" variant="accent" size="icon">
             <Send className="h-5 w-5" />

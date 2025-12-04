@@ -9,8 +9,13 @@ import { MapPin } from 'lucide-react';
 // THE FIX: Add Incremental Static Regeneration
 export const revalidate = 60;
 
-export default async function ExploreDetailPage({ params }: { params: { id: string } }) {
-  const entry = await prisma.exploreEntry.findUnique({ where: { id: params.id } });
+type ExploreDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function ExploreDetailPage({ params }: ExploreDetailPageProps) {
+  const { id } = await params;
+  const entry = await prisma.exploreEntry.findUnique({ where: { id } });
 
   if (!entry) notFound();
   

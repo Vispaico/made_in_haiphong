@@ -1,11 +1,16 @@
-// src/app/admin/explore/new/page.tsx
 'use client';
+// src/app/admin/explore/new/page.tsx
 
-import { useState, useEffect, useMemo } from 'react'; // Import useMemo
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUploader from '@/components/common/ImageUploader';
 import { Category } from '@prisma/client';
-import dynamic from 'next/dynamic'; // Import dynamic
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/common/LocationPicker'), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full rounded-lg bg-secondary animate-pulse" />,
+});
 
 export default function NewExploreEntryPage() {
   const router = useRouter();
@@ -21,15 +26,6 @@ export default function NewExploreEntryPage() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   
-  // THE FIX: Dynamically import the LocationPicker
-  const LocationPicker = useMemo(() => dynamic(
-    () => import('@/components/common/LocationPicker'),
-    { 
-      ssr: false,
-      loading: () => <div className="h-64 w-full rounded-lg bg-secondary animate-pulse" />
-    }
-  ), []);
-
   useEffect(() => {
     const fetchCategories = async () => {
       const response = await fetch('/api/admin/categories');
