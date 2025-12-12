@@ -52,11 +52,11 @@ export async function PATCH(
         where: {
           listingId: booking.listingId,
           status: BookingStatus.CONFIRMED,
+          id: { not: booking.id },
           NOT: [
             { endDate: { lte: booking.startDate } },
             { startDate: { gte: booking.endDate } },
           ],
-          NOT: { id: booking.id },
         },
       });
 
