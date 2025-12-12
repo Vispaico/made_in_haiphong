@@ -88,7 +88,7 @@ export function MultiChainSignIn() {
     if (isLoading === 'solana' && isSolConnected) {
       performSolanaSignIn();
     }
-  }, [isLoading, isSolConnected, solPublicKey, signSolMessage]);
+  }, [isLoading, isSolConnected, solPublicKey, signSolMessage, router, setSolanaModalVisible]);
 
   useEffect(() => {
     if (isLoading === 'solana' && !isSolanaModalVisible && !isSolConnected) {

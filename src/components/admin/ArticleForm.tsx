@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Article } from '@prisma/client';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/Button';
 import 'react-quill-new/dist/quill.snow.css';
@@ -28,7 +28,7 @@ interface ArticleFormProps {
 
 export default function ArticleForm({ article }: ArticleFormProps) {
   const router = useRouter();
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<ArticleFormData>({
+  const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<ArticleFormData>({
     defaultValues: {
       title: article?.title || '',
       slug: article?.slug || '',
@@ -41,7 +41,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const title = watch('title');
+  const title = useWatch({ control, name: 'title' });
 
   useEffect(() => {
     if (title) {

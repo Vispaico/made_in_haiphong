@@ -82,7 +82,7 @@ export default async function MyListingsPage() {
           </div>
         ) : (
           <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
-            <p className="font-semibold text-foreground">You haven't created any listings yet.</p>
+            <p className="font-semibold text-foreground">You haven&rsquo;t created any listings yet.</p>
             <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
               Create your first listing now!
             </Link>

@@ -38,6 +38,21 @@ export async function POST(req: Request) {
     if (listing.authorId === userId) {
       return new NextResponse('Bad Request: You cannot book your own listing', { status: 400 });
     }
+
+    const overlappingBooking = await prisma.booking.findFirst({
+      where: {
+        listingId,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        NOT: [
+          { endDate: { lte: start } },
+          { startDate: { gte: end } },
+        ],
+      },
+    });
+
+    if (overlappingBooking) {
+      return new NextResponse('Selected dates are no longer available.', { status: 409 });
+    }
     
     const newBooking = await prisma.booking.create({
       data: {

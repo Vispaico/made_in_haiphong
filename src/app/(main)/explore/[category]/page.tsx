@@ -53,7 +53,7 @@ export default async function CategoryPage({ params }: ExploreCategoryPageProps)
             <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
               <h2 className="font-heading text-2xl font-bold text-foreground">Coming Soon</h2>
               <p className="mt-2 text-foreground/70">
-                Content for "{category.name}" is being curated and will appear here soon.
+                Content for &ldquo;{category.name}&rdquo; is being curated and will appear here soon.
               </p>
             </div>
           )}

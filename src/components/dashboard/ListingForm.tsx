@@ -127,7 +127,7 @@ export default function ListingForm() {
         {currentStep === 4 && (
           <div className="space-y-4">
             <h2 className="font-heading text-2xl font-bold">Review & Submit</h2>
-            <p>You're about to post the following listing. Please review the details before submitting.</p>
+            <p>You&rsquo;re about to post the following listing. Please review the details before submitting.</p>
             <div className="rounded-lg bg-secondary p-4 space-y-2">
               <p><strong>Title:</strong> {title}</p>
               <p><strong>Category:</strong> {category}</p>

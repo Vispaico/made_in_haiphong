@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -17,15 +17,9 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fax, setFax] = useState(''); // Honeypot state
-  const [error, setError] = useState<string | null>(null);
+  const initialError = searchParams.get('error') === 'CredentialsSignin' ? 'Invalid email or password.' : null;
+  const [error, setError] = useState<string | null>(initialError);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const callbackError = searchParams.get('error');
-    if (callbackError === 'CredentialsSignin') {
-      setError('Invalid email or password.');
-    }
-  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

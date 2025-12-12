@@ -57,7 +57,7 @@ export default function LoyaltyPage() {
             </div>
              <div className="bg-background rounded-xl border border-secondary p-6 shadow-sm">
               <h4 className="font-semibold text-lg text-foreground mb-2">Are there other ways to earn points?</h4>
-              <p className="text-foreground/70">Yes! We are constantly working on new ways to reward our community. We'll announce new earning opportunities through our newsletter and on-site announcements.</p>
+              <p className="text-foreground/70">Yes! We are constantly working on new ways to reward our community. We&rsquo;ll announce new earning opportunities through our newsletter and on-site announcements.</p>
             </div>
           </div>
         </div>

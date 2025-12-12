@@ -1,16 +1,16 @@
-// src/middleware.ts
+// src/proxy.ts
 
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   // Use getToken to read the JWT from the request. We pass the secret directly.
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
   // --- LOGGING FOR DIAGNOSIS ---
   // This will show us exactly what the middleware sees.
-  console.log('Middleware Token:', token);
+  console.log('Proxy Token:', token);
   // -----------------------------
 
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
@@ -44,7 +44,7 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// This config ensures the middleware runs on all the specified paths.
+// This config ensures the proxy runs on all the specified paths.
 export const config = {
   matcher: [
     '/dashboard/:path*',

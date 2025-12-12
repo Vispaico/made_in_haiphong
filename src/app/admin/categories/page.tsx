@@ -14,7 +14,7 @@ export default async function AdminManageCategoriesPage() {
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-foreground">Manage Categories</h1>
-      <p className="mt-2 text-lg text-foreground/70">Add, edit, or delete the categories for the "Explore" and "Marketplace" sections.</p>
+      <p className="mt-2 text-lg text-foreground/70">Add, edit, or delete the categories for the &ldquo;Explore&rdquo; and &ldquo;Marketplace&rdquo; sections.</p>
       
       {/* We pass the server-fetched data to our interactive client component */}
       <div className="mt-8">

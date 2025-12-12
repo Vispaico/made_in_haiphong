@@ -4,6 +4,7 @@ import CommunityFeedClient from '@/components/community/CommunityFeedClient';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PlusCircle, Hash, Award } from 'lucide-react';
 
 export const revalidate = 60;
@@ -84,7 +85,7 @@ export default async function CommunityPage() {
               <ul className="space-y-3">
                 {topContributors.map(user => (
                   <li key={user.id} className="flex items-center gap-3">
-                    <img src={user.image} alt={user.name} className="h-10 w-10 rounded-full" />
+                    <Image src={user.image} alt={user.name} width={40} height={40} className="rounded-full object-cover" />
                     <span className="font-semibold">{user.name}</span>
                   </li>
                 ))}

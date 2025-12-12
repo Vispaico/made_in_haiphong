@@ -115,7 +115,7 @@ export default function AccountLinker({ accounts }: AccountLinkerProps) {
     if (isLoading === 'solana' && isSolanaConnected) {
       signAndLinkSolana();
     }
-  }, [isLoading, isSolanaConnected, solanaPublicKey, signSolMessage]);
+  }, [isLoading, isSolanaConnected, solanaPublicKey, signSolMessage, session?.user?.id, setSolanaModalVisible]);
 
   useEffect(() => {
     if (isLoading === 'solana' && !isSolanaModalVisible && !isSolanaConnected) {

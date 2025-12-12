@@ -60,7 +60,7 @@ export default async function MarketplaceCategoryPage({ params }: MarketplaceCat
           ) : (
             <div className="rounded-lg border-2 border-dashed border-secondary py-12 text-center">
               <h2 className="font-heading text-2xl font-bold text-foreground">No Listings Yet</h2>
-              <p className="mt-2 text-foreground/70">There are currently no listings for "{category.name}".</p>
+              <p className="mt-2 text-foreground/70">There are currently no listings for &ldquo;{category.name}&rdquo;.</p>
               <Link href="/dashboard/listings/new" className="mt-4 inline-block text-primary hover:underline">
                 Be the first to create one!
               </Link>

@@ -1,7 +1,6 @@
 // src/components/profile/LoyaltyBalance.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { ethers } from 'ethers';
 import TravelPoints from '@/../artifacts/contracts/TravelPoints.sol/TravelPoints.json';
@@ -10,7 +9,6 @@ const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}
 
 export function LoyaltyBalance() {
   const { address, isConnected } = useAccount();
-  const [balance, setBalance] = useState('0');
 
   const { data, isError, isLoading } = useReadContract({
     address: contractAddress,
@@ -19,12 +17,7 @@ export function LoyaltyBalance() {
     args: [address],
   });
 
-  useEffect(() => {
-    if (data) {
-      // The balance is returned as a BigNumber in ethers v5, format it
-      setBalance(ethers.utils.formatUnits(data as ethers.BigNumber, 18));
-    }
-  }, [data]);
+  const balance = data ? ethers.utils.formatUnits(data as ethers.BigNumber, 18) : '0';
 
   if (!isConnected) {
     return <p className="text-foreground/60">Please connect your wallet to see your TravelPoints balance.</p>;

@@ -3,20 +3,31 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Tag, Wrench, Car } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import prisma from '@/lib/prisma';
 
-const marketplaceCategories = [
-  { href: '/marketplace/for-sale', title: 'For Sale', icon: Tag, imageUrl: '/images/market-for-sale.jpg' },
-  { href: '/marketplace/services', title: 'Services', icon: Wrench, imageUrl: '/images/market-services.jpg' },
-  { href: '/marketplace/rentals', title: 'Rentals', icon: Car, imageUrl: '/images/market-rentals.jpg' },
-];
+export const revalidate = 60;
 
-const sampleItems = [
-  { href: "/marketplace/for-sale/1", title: "Used Honda Wave", description: "Good condition, recently serviced.", imageUrls: ["/images/rent-1.jpg"], price: 450 },
-  { href: "/marketplace/services/1", title: "Private City Tour Guide", description: "Explore Haiphong's hidden gems with a local.", imageUrls: ["/images/tour-1.jpg"], price: 50 },
-  { href: "/marketplace/rentals/1", title: "Ao Dai Rental for Photoshoot", description: "Beautiful traditional Vietnamese dresses.", imageUrls: ["/images/rent-2.jpg"], price: 15 },
-];
+const iconByType = (slug: string) => {
+  if (slug.includes('sale')) return Tag;
+  if (slug.includes('service')) return Wrench;
+  return Car;
+};
 
-export default function MarketplacePage() {
+const imageByType = (slug: string) => {
+  if (slug.includes('sale')) return '/images/market-for-sale.jpg';
+  if (slug.includes('service')) return '/images/market-services.jpg';
+  return '/images/market-rentals.jpg';
+};
+
+export default async function MarketplacePage() {
+  const [categories, featured] = await Promise.all([
+    prisma.category.findMany({ where: { type: 'MARKETPLACE' }, orderBy: { name: 'asc' } }),
+    prisma.listing.findMany({
+      orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+      take: 6,
+    }),
+  ]);
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -44,15 +55,18 @@ export default function MarketplacePage() {
       {/* Category Links */}
       <section className="container mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3">
-          {marketplaceCategories.map((link) => (
-            <Link href={link.href} key={link.href} className="group block">
+          {categories.map((category) => {
+            const Icon = iconByType(category.slug);
+            const imageUrl = imageByType(category.slug);
+            return (
+              <Link href={`/marketplace/${category.slug}`} key={category.id} className="group block">
               <div className="relative mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-secondary shadow-lg transition-transform duration-300 ease-in-out group-hover:scale-105">
-                <Image src={link.imageUrl} alt={link.title} fill className="object-cover rounded-full opacity-20" />
-                <link.icon className="relative h-16 w-16 text-primary transition-colors group-hover:text-accent" />
+                  <Image src={imageUrl} alt={category.name} fill className="object-cover rounded-full opacity-20" />
+                  <Icon className="relative h-16 w-16 text-primary transition-colors group-hover:text-accent" />
               </div>
-              <h3 className="mt-6 font-heading text-2xl font-bold text-foreground">{link.title}</h3>
+                <h3 className="mt-6 font-heading text-2xl font-bold text-foreground">{category.name}</h3>
             </Link>
-          ))}
+          );})}
         </div>
       </section>
 
@@ -66,16 +80,19 @@ export default function MarketplacePage() {
             </Link>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
-            {sampleItems.map((item) => (
-              <Card 
-                key={item.href}
-                href={item.href}
+            {featured.map((item) => (
+              <Card
+                key={item.id}
+                href={`/marketplace/${item.category}/${item.id}`}
                 title={item.title}
-                description={item.description}
+                description={item.description.slice(0, 80)}
                 imageUrls={item.imageUrls}
                 price={item.price}
               />
             ))}
+            {!featured.length && (
+              <p className="text-foreground/70">No marketplace items yet. Be the first to list something!</p>
+            )}
           </div>
         </div>
       </section>

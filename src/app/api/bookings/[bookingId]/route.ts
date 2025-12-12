@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { BookingStatus } from '@prisma/client';
+import { awardLoyaltyPoints } from '@/lib/loyalty';
 
 type BookingRouteContext = {
   params: Promise<{ bookingId: string }>;
@@ -46,6 +47,24 @@ export async function PATCH(
       return new NextResponse('Forbidden: You do not own this listing', { status: 403 });
     }
 
+    if (status === BookingStatus.CONFIRMED) {
+      const conflict = await prisma.booking.findFirst({
+        where: {
+          listingId: booking.listingId,
+          status: BookingStatus.CONFIRMED,
+          NOT: [
+            { endDate: { lte: booking.startDate } },
+            { startDate: { gte: booking.endDate } },
+          ],
+          NOT: { id: booking.id },
+        },
+      });
+
+      if (conflict) {
+        return new NextResponse('Listing already confirmed for these dates.', { status: 409 });
+      }
+    }
+
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: {
@@ -63,6 +82,10 @@ export async function PATCH(
           link: `/dashboard/bookings`,
         },
       });
+
+      if (updatedBooking.status === 'CONFIRMED') {
+        await awardLoyaltyPoints({ userId: booking.userId, points: 50 });
+      }
     }
 
     return NextResponse.json(updatedBooking);

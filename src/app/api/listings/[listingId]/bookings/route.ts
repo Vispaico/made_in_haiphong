@@ -17,7 +17,7 @@ export async function GET(
     const bookings = await prisma.booking.findMany({
       where: {
         listingId,
-        status: 'CONFIRMED', // Only fetch confirmed bookings
+        status: { not: 'CANCELLED' },
       },
       select: {
         startDate: true,

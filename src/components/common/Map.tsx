@@ -12,7 +12,7 @@ export default function Map({ location, listings }: { location: [number, number]
       loading: () => <div className="h-full w-full bg-secondary animate-pulse rounded-lg" />,
       ssr: false
     }
-  ), [location, listings]); // Dependency array includes listings now
+  ), []);
   
   // Pass both location and listings to the display component
   return <MapDisplay location={location} listings={listings} />;

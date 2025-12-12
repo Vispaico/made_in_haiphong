@@ -8,10 +8,10 @@ const AboutUsPage = () => {
           <h1 className="font-heading text-4xl font-bold text-foreground mb-6 text-center">About Made in Haiphong</h1>
           <div className="space-y-6 text-lg text-foreground/80">
             <p>
-              Welcome to Made in Haiphong, your digital gateway to the vibrant heart of Vietnam's port city. Our mission is to showcase the very best of Haiphong, from its bustling streets and rich cultural heritage to its breathtaking landscapes and, most importantly, its remarkable people.
+              Welcome to Made in Haiphong, your digital gateway to the vibrant heart of Vietnam&rsquo;s port city. Our mission is to showcase the very best of Haiphong, from its bustling streets and rich cultural heritage to its breathtaking landscapes and, most importantly, its remarkable people.
             </p>
             <p>
-              We believe that Haiphong is more than just a destination; it's an experience. It's the taste of freshly caught seafood, the hum of motorbikes in the city, the warmth of a smile from a local artisan, and the serene beauty of Cat Ba Island. We are passionate about sharing these authentic experiences with the world.
+              We believe that Haiphong is more than just a destination; it&rsquo;s an experience. It&rsquo;s the taste of freshly caught seafood, the hum of motorbikes in the city, the warmth of a smile from a local artisan, and the serene beauty of Cat Ba Island. We are passionate about sharing these authentic experiences with the world.
             </p>
             <p>
               Our platform was born from a deep love for this city and a desire to connect travelers, expatriates, and locals alike. We aim to:
@@ -23,7 +23,7 @@ const AboutUsPage = () => {
               <li><span className="font-semibold text-foreground">Support Sustainable Tourism:</span> We encourage responsible travel that respects the local culture and environment.</li>
             </ul>
             <p>
-              Whether you're planning your first visit, looking for your next favorite restaurant, or seeking to connect with fellow Haiphong enthusiasts, Made in Haiphong is here to be your trusted companion.
+              Whether you&rsquo;re planning your first visit, looking for your next favorite restaurant, or seeking to connect with fellow Haiphong enthusiasts, Made in Haiphong is here to be your trusted companion.
             </p>
             <p className="font-semibold text-foreground text-center">
               Join us in celebrating the spirit of Haiphong – a city of resilience, innovation, and endless charm.

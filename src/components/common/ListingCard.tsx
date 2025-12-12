@@ -18,7 +18,7 @@ export default function ListingCard({ listing }: { listing: any }) {
         </div>
         <div className="mt-2">
           <h3 className="font-heading text-lg font-bold truncate">{listing.title}</h3>
-          <p className="text-sm text-foreground/80 truncate">{listing.address}</p>
+          <p className="text-sm text-foreground/80 truncate">{listing.address || listing.description}</p>
           <div className="mt-2 flex items-center justify-between">
             <p className="font-bold text-primary">${listing.price} / night</p>
             <div className="flex items-center gap-1">

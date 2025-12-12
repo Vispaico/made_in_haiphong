@@ -9,17 +9,17 @@ interface ImageCarouselProps {
 }
 
 export default function ImageCarousel({ images }: ImageCarouselProps) {
-  // If there are no images, show a placeholder.
-  if (!images || images.length === 0) {
+  const hasImages = Boolean(images?.length);
+  const initialImage = hasImages ? images[0] : '/images/placeholder.png';
+  const [activeImage, setActiveImage] = useState(initialImage);
+
+  if (!hasImages) {
     return (
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-secondary">
-        <Image src="/images/placeholder.png" alt="No image available" fill className="object-cover" />
+        <Image src={activeImage} alt="No image available" fill className="object-cover" />
       </div>
     );
   }
-
-  // State to track the currently displayed main image.
-  const [activeImage, setActiveImage] = useState(images[0]);
 
   return (
     <div className="flex flex-col gap-2">

@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
       <div>
         <h2 className="font-heading text-2xl font-bold text-foreground">Forgot Your Password?</h2>
         <p className="mt-2 text-sm text-foreground/70">
-          No problem. Enter your email address below and we'll send you a link to reset it.
+          No problem. Enter your email address below and we&rsquo;ll send you a link to reset it.
         </p>
       </div>
 
