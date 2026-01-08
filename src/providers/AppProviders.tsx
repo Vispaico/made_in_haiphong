@@ -18,11 +18,12 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { clientEnv } from '@/env/client';
 
 const queryClient = new QueryClient();
 
 // IMPORTANT: You will need to get a project ID from WalletConnect Cloud (https://cloud.walletconnect.com)
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+const walletConnectProjectId = clientEnv.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 if (!walletConnectProjectId) {
   console.warn('Warning: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. WalletConnect will not work.');
 }

@@ -2,10 +2,11 @@
 
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
+import { serverEnv } from '@/env/server';
 
 export async function proxy(req: NextRequest) {
   // Use getToken to read the JWT from the request. We pass the secret directly.
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: serverEnv.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
   // --- LOGGING FOR DIAGNOSIS ---

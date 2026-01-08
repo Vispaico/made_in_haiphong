@@ -4,8 +4,9 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { ethers } from 'ethers';
 import TravelPoints from '@/../artifacts/contracts/TravelPoints.sol/TravelPoints.json';
+import { clientEnv } from '@/env/client';
 
-const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+const contractAddress = clientEnv.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}` | undefined;
 
 export function LoyaltyBalance() {
   const { address, isConnected } = useAccount();
@@ -15,9 +16,16 @@ export function LoyaltyBalance() {
     abi: TravelPoints.abi,
     functionName: 'balanceOf',
     args: [address],
+    query: {
+      enabled: Boolean(contractAddress && isConnected),
+    },
   });
 
   const balance = data ? ethers.utils.formatUnits(data as ethers.BigNumber, 18) : '0';
+
+  if (!contractAddress) {
+    return <p className="text-foreground/60">On-chain loyalty tracking is not configured.</p>;
+  }
 
   if (!isConnected) {
     return <p className="text-foreground/60">Please connect your wallet to see your TravelPoints balance.</p>;

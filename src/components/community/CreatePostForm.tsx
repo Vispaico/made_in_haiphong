@@ -10,6 +10,7 @@ export default function CreatePostForm() {
   // THE FIX: State now holds an array of URLs.
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -19,6 +20,7 @@ export default function CreatePostForm() {
 
     setIsSubmitting(true);
     setError(null);
+    setSuccess(null);
 
     const response = await fetch('/api/posts', {
       method: 'POST',
@@ -28,8 +30,10 @@ export default function CreatePostForm() {
     });
 
     if (response.ok) {
+      const payload = await response.json();
       setContent('');
       setImageUrls([]); // Clear the image URLs array
+      setSuccess(payload.message || 'Post submitted and awaiting moderation.');
       router.refresh();
     } else {
       setError('Failed to create post. Please try again.');
@@ -59,6 +63,7 @@ export default function CreatePostForm() {
       </div>
 
       {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {success && <p className="mt-2 text-sm text-emerald-600">{success}</p>}
       <div className="mt-4 flex justify-end">
         <button 
           type="submit" 

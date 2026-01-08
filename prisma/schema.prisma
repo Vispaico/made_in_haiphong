@@ -33,6 +33,12 @@ enum ActivityType {
   NEW_COMMENT
 }
 
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // --- MODELS ---
 
 model User {
@@ -62,6 +68,7 @@ model User {
 
   activities         Activity[]
   initiatedActivities Activity[] @relation("InitiatedActivities")
+  loyaltyTransactions LoyaltyTransaction[]
 }
 
 model Account {
@@ -103,6 +110,7 @@ model Post {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   imageUrls String[]
+  status    PostStatus @default(PENDING)
   authorId  String
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Comment[]
@@ -253,6 +261,17 @@ model Article {
   updatedAt       DateTime @updatedAt
   authorId        String
   author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model LoyaltyTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int
+  reason    String
+  sourceId  String?
+  sourceType String?
+  createdAt DateTime @default(now())
 }
 
 model NewsletterSubscription {

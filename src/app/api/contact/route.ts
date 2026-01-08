@@ -1,39 +1,46 @@
 
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { contactFormSchema } from '@/lib/validators';
+import { serverEnv } from '@/env/server';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, message, fax } = await request.json();
+    const payload = await request.json();
+    const { name, email, message, fax } = payload;
 
     // Honeypot check
     if (fax) {
       return NextResponse.json({ message: 'Bot submission detected.' }, { status: 200 });
     }
 
+    const parsed = contactFormSchema.safeParse({ name, email, message });
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid form submission', details: parsed.error.flatten() }, { status: 400 });
+    }
 
-    // Basic validation
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    if (!serverEnv.SMTP_HOST || !serverEnv.SMTP_PORT || !serverEnv.SMTP_USER || !serverEnv.SMTP_PASS || !serverEnv.CONTACT_FORM_RECEIVER_EMAIL) {
+      return NextResponse.json({ error: 'Contact form email service is not configured.' }, { status: 503 });
     }
 
     // --- IMPORTANT ---
     // Replace with your actual email service provider's details.
     // For security, use environment variables instead of hardcoding credentials.
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+      host: serverEnv.SMTP_HOST,
+      port: Number(serverEnv.SMTP_PORT),
+      secure: Number(serverEnv.SMTP_PORT) === 465, // true for 465, false for other ports
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: serverEnv.SMTP_USER,
+        pass: serverEnv.SMTP_PASS,
       },
     });
 
     const mailOptions = {
-      from: `"Made in Haiphong Contact Form" <${process.env.SMTP_USER}>`,
+      from: `"Made in Haiphong Contact Form" <${serverEnv.SMTP_USER}>`,
       replyTo: email,
-      to: process.env.CONTACT_FORM_RECEIVER_EMAIL,
+      to: serverEnv.CONTACT_FORM_RECEIVER_EMAIL,
       subject: `New Contact Form Submission from ${name}`,
       text: message,
       html: `<p>You have a new contact form submission:</p>
@@ -48,7 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Message sent successfully!' }, { status: 200 });
 
   } catch (error) {
-    console.error('Failed to send email:', error);
+    logger.error({ error }, 'Failed to send email');
     return NextResponse.json({ error: 'Failed to send message.' }, { status: 500 });
   }
 }

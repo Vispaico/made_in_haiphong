@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { BookingStatus } from '@prisma/client';
 import { awardLoyaltyPoints } from '@/lib/loyalty';
+import { logger } from '@/lib/logger';
 
 type BookingRouteContext = {
   params: Promise<{ bookingId: string }>;
@@ -84,13 +85,19 @@ export async function PATCH(
       });
 
       if (updatedBooking.status === 'CONFIRMED') {
-        await awardLoyaltyPoints({ userId: booking.userId, points: 50 });
+        await awardLoyaltyPoints({
+          userId: booking.userId,
+          points: 50,
+          reason: 'Booking confirmed',
+          sourceId: booking.id,
+          sourceType: 'BOOKING',
+        });
       }
     }
 
     return NextResponse.json(updatedBooking);
   } catch (error) {
-    console.error("Error updating booking:", error);
+    logger.error({ error }, 'Error updating booking');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

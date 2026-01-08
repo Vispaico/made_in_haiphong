@@ -4,11 +4,14 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { postBodySchema } from '@/lib/validators';
+import { logger } from '@/lib/logger';
 
 // The GET handler remains the same
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({
+      where: { status: 'APPROVED' },
       orderBy: { createdAt: 'desc' },
       include: {
         author: { select: { id: true, name: true, image: true } },
@@ -17,7 +20,7 @@ export async function GET() {
     });
     return NextResponse.json(posts);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    logger.error({ error }, 'Error fetching posts');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
@@ -30,26 +33,26 @@ export async function POST(req: Request) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  // THE FIX IS HERE: We now expect 'imageUrls' (an array) instead of 'imageUrl'.
-  const { content, imageUrls } = await req.json();
+  const parsed = postBodySchema.safeParse(await req.json());
 
-  if (!content || typeof content !== 'string' || content.length < 1) {
-    return new NextResponse('Bad Request: Invalid content', { status: 400 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid post payload', details: parsed.error.flatten() }, { status: 400 });
   }
+
+  const { content, imageUrls } = parsed.data;
 
   try {
     const newPost = await prisma.post.create({
       data: {
-        content: content,
-        // THE FIX IS HERE: We save the array of URLs.
-        // If imageUrls is null or undefined, Prisma will default it to an empty array [].
-        imageUrls: imageUrls || [],
+        content,
+        imageUrls,
         authorId: session.user.id,
+        status: 'PENDING',
       },
     });
-    return NextResponse.json(newPost, { status: 201 });
+    return NextResponse.json({ ...newPost, message: 'Post submitted for review' }, { status: 201 });
   } catch (error) {
-    console.error("Error creating post:", error);
+    logger.error({ error }, 'Error creating post');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

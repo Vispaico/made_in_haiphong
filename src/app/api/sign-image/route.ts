@@ -2,11 +2,14 @@
 
 import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
+import { serverEnv } from '@/env/server';
+import { clientEnv } from '@/env/client';
+import { logger } from '@/lib/logger';
 
 cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: clientEnv.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: serverEnv.CLOUDINARY_API_KEY,
+  api_secret: serverEnv.CLOUDINARY_API_SECRET,
 });
 
 export async function POST() {
@@ -21,18 +24,18 @@ export async function POST() {
         timestamp: timestamp,
         folder: folder,
       },
-      process.env.CLOUDINARY_API_SECRET!
+      serverEnv.CLOUDINARY_API_SECRET
     );
 
     return NextResponse.json({
       signature,
       timestamp,
-      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
+      cloud_name: clientEnv.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      api_key: serverEnv.CLOUDINARY_API_KEY,
       folder,
     });
   } catch (error) {
-    console.error("Error generating Cloudinary signature:", error);
+    logger.error({ error }, 'Error generating Cloudinary signature');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

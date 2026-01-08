@@ -3,10 +3,19 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { emailOnlySchema } from '@/lib/validators';
+import { serverEnv } from '@/env/server';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const parsed = emailOnlySchema.safeParse(await request.json());
+
+    if (!parsed.success) {
+      return new NextResponse('Invalid email address', { status: 400 });
+    }
+
+    const { email } = parsed.data;
 
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
@@ -25,43 +34,42 @@ export async function POST(request: Request) {
       },
     });
 
-    const resetLink = `${process.env.NEXTAUTH_URL}/reset-password/${token}`;
-
-    if (!process.env.EMAIL_SERVER_HOST || !process.env.EMAIL_SERVER_PORT || !process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD || !process.env.EMAIL_FROM) {
-      console.error('Missing email server environment variables');
+    if (!serverEnv.NEXTAUTH_URL || !serverEnv.EMAIL_SERVER_HOST || !serverEnv.EMAIL_SERVER_PORT || !serverEnv.EMAIL_SERVER_USER || !serverEnv.EMAIL_SERVER_PASSWORD || !serverEnv.EMAIL_FROM) {
+      logger.error('Missing email server environment variables for password reset');
       return new NextResponse('Internal Server Error', { status: 500 });
     }
 
+    const resetLink = `${serverEnv.NEXTAUTH_URL}/reset-password/${token}`;
+
     // Configure nodemailer
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST,
-      port: Number(process.env.EMAIL_SERVER_PORT),
-      secure: Number(process.env.EMAIL_SERVER_PORT) === 465, // Use SSL for port 465
+      host: serverEnv.EMAIL_SERVER_HOST,
+      port: Number(serverEnv.EMAIL_SERVER_PORT),
+      secure: Number(serverEnv.EMAIL_SERVER_PORT) === 465, // Use SSL for port 465
       auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
+        user: serverEnv.EMAIL_SERVER_USER,
+        pass: serverEnv.EMAIL_SERVER_PASSWORD,
       },
     });
 
     try {
       const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM,
+        from: serverEnv.EMAIL_FROM,
         to: email,
         subject: 'Reset Your Password for Made in Haiphong',
         html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
       });
-
-      console.log('Email sent successfully. Server Response:', info.response);
+      logger.info({ response: info.response }, 'Password reset email sent');
 
     } catch (emailError) {
-      console.error('Failed to send email. Error:', emailError);
+      logger.error({ emailError }, 'Failed to send password reset email');
       // We still don't want to leak information, but we need to know about the error.
       return new NextResponse('Internal Server Error', { status: 500 });
     }
 
     return new NextResponse('If your email is in our system, you will receive a password reset link.', { status: 200 });
   } catch (error) {
-    console.error('Forgot Password Error:', error);
+    logger.error({ error }, 'Forgot Password Error');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

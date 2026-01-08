@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { bookingRequestSchema } from '@/lib/validators';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -12,21 +14,16 @@ export async function POST(req: Request) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
+  const parsed = bookingRequestSchema.safeParse(await req.json());
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid booking payload', details: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const { listingId, startDate, endDate } = parsed.data;
+  const userId = session.user.id;
+
   try {
-    const { listingId, startDate, endDate } = await req.json();
-    const userId = session.user.id;
-
-    if (!listingId || !startDate || !endDate) {
-      return new NextResponse('Bad Request: Missing required fields', { status: 400 });
-    }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (start >= end) {
-      return new NextResponse('Bad Request: End date must be after start date', { status: 400 });
-    }
-
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -44,8 +41,8 @@ export async function POST(req: Request) {
         listingId,
         status: { in: ['PENDING', 'CONFIRMED'] },
         NOT: [
-          { endDate: { lte: start } },
-          { startDate: { gte: end } },
+          { endDate: { lte: startDate } },
+          { startDate: { gte: endDate } },
         ],
       },
     });
@@ -56,8 +53,8 @@ export async function POST(req: Request) {
     
     const newBooking = await prisma.booking.create({
       data: {
-        startDate: start,
-        endDate: end,
+        startDate,
+        endDate,
         userId: userId,
         listingId: listingId,
         status: 'PENDING',
@@ -76,7 +73,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newBooking, { status: 201 });
   } catch (error) {
-    console.error("Error creating booking:", error);
+    logger.error({ error }, 'Error creating booking');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

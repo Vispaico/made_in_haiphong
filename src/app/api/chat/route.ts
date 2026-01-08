@@ -4,12 +4,27 @@ import { convertToCoreMessages, jsonSchema, streamText } from 'ai';
 import { createTravelSDK } from '@/lib/myTravelSDK';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { aiChatSchema } from '@/lib/validators';
+import { NextResponse } from 'next/server';
+import { serverEnv } from '@/env/server';
+import { logger } from '@/lib/logger';
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY || '',
-});
+const google = serverEnv.GOOGLE_API_KEY
+  ? createGoogleGenerativeAI({
+      apiKey: serverEnv.GOOGLE_API_KEY,
+    })
+  : null;
 
 export async function POST(req: Request) {
+  if (!google) {
+    return NextResponse.json({ error: 'AI assistant is not configured.' }, { status: 503 });
+  }
+
+  const parsed = aiChatSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+  }
+
   const session = await getServerSession(authOptions);
   const sdk = createTravelSDK(session);
   const tools = {
@@ -73,13 +88,17 @@ export async function POST(req: Request) {
     },
   } as const;
 
-  const { messages } = await req.json();
+  try {
+    const coreMessages = convertToCoreMessages(parsed.data.messages as any);
+    const result = await streamText({
+      model: google('gemini-1.5-flash'),
+      tools,
+      messages: coreMessages,
+    });
 
-  const result = await streamText({
-    model: google('gemini-1.5-flash'),
-    tools,
-    messages: convertToCoreMessages(messages),
-  });
-
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    logger.error({ error }, 'AI chat failed');
+    return NextResponse.json({ error: 'Unable to process assistant request.' }, { status: 500 });
+  }
 }

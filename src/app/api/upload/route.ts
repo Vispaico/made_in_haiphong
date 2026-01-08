@@ -3,11 +3,14 @@ import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { serverEnv } from '@/env/server';
+import { clientEnv } from '@/env/client';
+import { logger } from '@/lib/logger';
 
 cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: clientEnv.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: serverEnv.CLOUDINARY_API_KEY,
+  api_secret: serverEnv.CLOUDINARY_API_SECRET,
 });
 
 export async function POST(req: Request) {
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: (result as any).secure_url });
   } catch (error) {
-    console.error("Error uploading to Cloudinary:", error);
+    logger.error({ error }, 'Error uploading to Cloudinary');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

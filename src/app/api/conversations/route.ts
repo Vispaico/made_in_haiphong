@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { conversationRecipientSchema } from '@/lib/validators';
+import { logger } from '@/lib/logger';
 
 // GET handler to fetch all conversations for the current user
 export async function GET() {
@@ -42,7 +44,7 @@ export async function GET() {
 
     return NextResponse.json(conversations);
   } catch (error) {
-    console.error("Error fetching conversations:", error);
+    logger.error({ error }, 'Error fetching conversations');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
@@ -55,14 +57,20 @@ export async function POST(req: Request) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
+  const parsed = conversationRecipientSchema.safeParse(await req.json());
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const { recipientId } = parsed.data;
+  const currentUserId = session.user.id;
+
+  if (recipientId === currentUserId) {
+    return new NextResponse('Bad Request: You cannot contact yourself', { status: 400 });
+  }
+
   try {
-    const { recipientId } = await req.json();
-    const currentUserId = session.user.id;
-
-    if (!recipientId) {
-      return new NextResponse('Bad Request: recipientId is required', { status: 400 });
-    }
-
     // Check if a conversation between these two users already exists
     const existingConversation = await prisma.conversation.findFirst({
       where: {
@@ -91,7 +99,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newConversation, { status: 201 });
   } catch (error) {
-    console.error("Error creating conversation:", error);
+    logger.error({ error }, 'Error creating conversation');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

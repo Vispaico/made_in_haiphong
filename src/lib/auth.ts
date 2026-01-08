@@ -5,10 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { verifyEthereumSignature, verifySolanaSignature } from './auth-utils';
-
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-  throw new Error('Missing Google OAuth environment variables');
-}
+import { serverEnv } from '@/env/server';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -96,8 +93,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: serverEnv.GOOGLE_CLIENT_ID,
+      clientSecret: serverEnv.GOOGLE_CLIENT_SECRET,
     }),
   ],
   session: {
@@ -110,7 +107,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        domain: process.env.NODE_ENV === 'production' ? '.made-in-haiphong.com' : undefined,
+        domain: serverEnv.NODE_ENV === 'production' ? '.made-in-haiphong.com' : undefined,
         secure: true
       }
     }
@@ -193,6 +190,6 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/login', 
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  secret: serverEnv.NEXTAUTH_SECRET,
+  debug: serverEnv.NODE_ENV === 'development',
 };

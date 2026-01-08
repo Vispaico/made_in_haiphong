@@ -2,13 +2,14 @@
 // src/app/admin/layout.tsx
 import Link from 'next/link';
 import Image from 'next/image';
-import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList, Newspaper, Bell } from 'lucide-react';
+import { Shield, LayoutGrid, Users, Settings, Compass, LayoutList, Newspaper, Bell, MessageSquare } from 'lucide-react';
 import AdminMobileNav from '@/components/admin/AdminMobileNav';
 import UserButton from '@/components/auth/UserButton';
 
 const adminNavLinks = [
   { href: '/admin', label: 'Listings', icon: LayoutGrid },
   { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/posts', label: 'Posts', icon: MessageSquare },
   { href: '/admin/explore', label: 'Explore', icon: Compass },
   { href: '/admin/categories', label: 'Categories', icon: LayoutList },
   { href: '/admin/articles', label: 'Articles', icon: Newspaper },
