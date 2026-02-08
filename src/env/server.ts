@@ -27,6 +27,12 @@ const serverSchema = z.object({
     .min(1, 'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is required for media uploads'),
   NEXT_PUBLIC_CONTRACT_ADDRESS: z.string().optional(),
   NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
+  TYPESENSE_API_KEY: z.string().optional(),
+  TYPESENSE_HOST: z.string().optional(),
+  TYPESENSE_PORT: z.string().optional(),
+  TYPESENSE_PROTOCOL: z.enum(['http', 'https']).optional(),
+  TYPESENSE_COLLECTION_PREFIX: z.string().optional(),
 });
 
 const parsed = serverSchema.safeParse(process.env);

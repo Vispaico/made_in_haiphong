@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import '../../sentry.client.config';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, sepolia, polygon } from 'wagmi/chains';
 import { walletConnect, injected } from 'wagmi/connectors';

@@ -7,15 +7,53 @@ on:
       - main
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/haiphong
+      NEXTAUTH_SECRET: test-secret
+      GOOGLE_CLIENT_ID: dummy-google-client-id
+      GOOGLE_CLIENT_SECRET: dummy-google-client-secret
+      CLOUDINARY_API_KEY: dummy-cloudinary-key
+      CLOUDINARY_API_SECRET: dummy-cloudinary-secret
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: dummy-cloudinary-name
+      NEXTAUTH_URL: http://localhost:3000
+      GOOGLE_API_KEY: dummy-google-api-key
+      NEXT_PUBLIC_CONTRACT_ADDRESS: 0x0000000000000000000000000000000000000000
+      NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: dummy-walletconnect-id
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: haiphong
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
+      - name: Ensure database exists
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -c "CREATE DATABASE haiphong;"
+      - name: Prisma format
+        run: npm run prisma:format
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm run test
+      - name: Build
+        run: npm run build
